@@ -1892,7 +1892,7 @@
         <div class="modal-form-grid">
           <label class="modal-label" for="createGameId"><span class="required">*</span>遊戲編號</label>
           <div class="modal-control">
-            <input id="createGameId" name="gameId" required>
+            <input id="createGameId" name="gameId" placeholder="983fd349-c4dc-11ee-bac6-0242ac180002" maxlength="36" required>
           </div>
 
           <label class="modal-label" for="createAgent"><span class="required">*</span>代理帳號</label>
@@ -2057,7 +2057,7 @@
 
     const games = [
       {
-        id: "G-100128",
+        id: "983fd349-c4dc-11ee-bac6-0242ac180002",
         name: "皇家德州撲克",
         shortName: "皇家德州",
         vendor: "Ace Gaming",
@@ -2077,7 +2077,7 @@
         updatedAt: "2026-05-06 16:42"
       },
       {
-        id: "G-100231",
+        id: "a17e8a8c-c4dc-11ee-bac6-0242ac180002",
         name: "極速輪盤",
         shortName: "速輪",
         vendor: "Nova Table",
@@ -2097,7 +2097,7 @@
         updatedAt: "2026-05-05 10:14"
       },
       {
-        id: "G-100417",
+        id: "ac42c84a-c4dc-11ee-bac6-0242ac180002",
         name: "龍宮寶藏",
         shortName: "龍寶",
         vendor: "Ocean Play",
@@ -2117,7 +2117,7 @@
         updatedAt: "2026-05-07 08:53"
       },
       {
-        id: "G-100503",
+        id: "b7638d6e-c4dc-11ee-bac6-0242ac180002",
         name: "星際爆分",
         shortName: "星爆",
         vendor: "Rocket Slot",
@@ -2137,7 +2137,7 @@
         updatedAt: "2026-05-04 21:19"
       },
       {
-        id: "G-100611",
+        id: "c1f2af32-c4dc-11ee-bac6-0242ac180002",
         name: "經典百家樂",
         shortName: "經典百家",
         vendor: "Nova Table",
@@ -2157,7 +2157,7 @@
         updatedAt: "2026-05-02 13:27"
       },
       {
-        id: "G-100744",
+        id: "cc9128be-c4dc-11ee-bac6-0242ac180002",
         name: "霓虹賽車",
         shortName: "霓虹車",
         vendor: "Rocket Slot",
@@ -2177,7 +2177,7 @@
         updatedAt: "2026-05-01 18:03"
       },
       {
-        id: "G-100802",
+        id: "d71f6d66-c4dc-11ee-bac6-0242ac180002",
         name: "金礦連環炮",
         shortName: "金礦炮",
         vendor: "Ocean Play",
@@ -2197,7 +2197,7 @@
         updatedAt: "2026-04-30 09:58"
       },
       {
-        id: "G-100935",
+        id: "e1ba3cf4-c4dc-11ee-bac6-0242ac180002",
         name: "幸運骰寶",
         shortName: "骰寶",
         vendor: "Ace Gaming",
@@ -2217,7 +2217,7 @@
         updatedAt: "2026-04-28 15:30"
       },
       {
-        id: "G-101021",
+        id: "ec4ef08a-c4dc-11ee-bac6-0242ac180002",
         name: "糖果派對",
         shortName: "糖果",
         vendor: "Sweet Labs",
@@ -2237,7 +2237,7 @@
         updatedAt: "2026-05-06 12:05"
       },
       {
-        id: "G-101104",
+        id: "f6d9c160-c4dc-11ee-bac6-0242ac180002",
         name: "武士對決",
         shortName: "武士",
         vendor: "Nine Studio",
@@ -2257,7 +2257,7 @@
         updatedAt: "2026-05-03 11:16"
       },
       {
-        id: "G-101218",
+        id: "0186a2ca-c4dd-11ee-bac6-0242ac180002",
         name: "財神到",
         shortName: "財神",
         vendor: "Sweet Labs",
@@ -2277,7 +2277,7 @@
         updatedAt: "2026-05-07 09:42"
       },
       {
-        id: "G-101366",
+        id: "0c3159ee-c4dd-11ee-bac6-0242ac180002",
         name: "森林探險",
         shortName: "森林",
         vendor: "Green Wheel",
@@ -2328,6 +2328,7 @@
     const createGameBackdropEl = document.getElementById("createGameBackdrop");
     const createGameFormEl = document.getElementById("createGameForm");
     const createAgentEl = document.getElementById("createAgent");
+    const gameIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     let activeAggregator = "";
 
     function escapeHtml(value) {
@@ -2981,11 +2982,17 @@
     function createGameFromForm(event) {
       event.preventDefault();
       const formData = new FormData(createGameFormEl);
-      const gameId = String(formData.get("gameId")).trim();
+      const gameId = String(formData.get("gameId")).trim().toLowerCase();
       const agent = String(formData.get("agent")).trim();
       const status = String(formData.get("status"));
       const maintenance = String(formData.get("maintenance"));
       const note = String(formData.get("note")).trim();
+
+      if (!gameIdPattern.test(gameId)) {
+        createGameFormEl.elements.gameId.setCustomValidity("請輸入 UUID 格式，例如 983fd349-c4dc-11ee-bac6-0242ac180002");
+        createGameFormEl.elements.gameId.reportValidity();
+        return;
+      }
 
       if (games.some((game) => game.id === gameId)) {
         createGameFormEl.elements.gameId.setCustomValidity("遊戲編號已存在");
