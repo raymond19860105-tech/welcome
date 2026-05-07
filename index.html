@@ -952,11 +952,38 @@
       white-space: nowrap;
     }
 
+    .summary-subtext {
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .summary-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: fit-content;
+      min-height: 24px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #4e5acb;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .summary-action:hover {
+      color: #303ba5;
+      text-decoration: underline;
+    }
+
     .status-rail {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(5px, 1fr));
       gap: 3px;
-      width: 128px;
+      width: 150px;
       max-width: 100%;
     }
 
@@ -1995,14 +2022,20 @@
   </section>
 
   <script>
-    const platforms = ["ops", "zf", "direct", "kuma", "omg", "9game"];
+    const platforms = ["ops", "zf", "direct", "kuma", "omg", "9game", "jili", "pg", "fc", "rich88", "ae", "awc"];
     const platformLabels = {
       ops: "ops",
       zf: "zf",
       direct: "direct",
       kuma: "kuma",
       omg: "omg",
-      "9game": "9game"
+      "9game": "9game",
+      jili: "jili",
+      pg: "pg",
+      fc: "fc",
+      rich88: "rich88",
+      ae: "ae",
+      awc: "awc"
     };
     const statusLabels = {
       enabled: "啟用",
@@ -2430,24 +2463,42 @@
       return count === 0 ? "預設" : `已自訂 ${count} 項`;
     }
 
-    function getPlatformSummary(game) {
-      const entries = platforms.map((platform) => [platform, game.platforms[platform]]);
-      const enabled = entries.filter(([, status]) => status === "enabled");
-      const maintaining = entries.filter(([, status]) => status === "maintain");
+    function getPlatformStatus(game, platform) {
+      return game.platforms?.[platform] || "disabled";
+    }
 
-      if (maintaining.length > 0) {
-        return `維護 ${maintaining.length} / ${entries.length}`;
-      }
-      if (enabled.length === 0) {
+    function getPlatformEntries(game) {
+      return platforms.map((platform) => ({
+        key: platform,
+        label: platformLabels[platform] || platform,
+        status: getPlatformStatus(game, platform)
+      }));
+    }
+
+    function getPlatformStats(game) {
+      const entries = getPlatformEntries(game);
+      return {
+        total: entries.length,
+        enabled: entries.filter((entry) => entry.status === "enabled").length,
+        maintain: entries.filter((entry) => entry.status === "maintain").length,
+        disabled: entries.filter((entry) => entry.status === "disabled").length
+      };
+    }
+
+    function getPlatformSummary(game) {
+      const stats = getPlatformStats(game);
+      if (stats.enabled === 0) {
         return "全部停用";
       }
-      if (enabled.length === entries.length) {
+      if (stats.enabled === stats.total) {
         return "全部啟用";
       }
-      if (enabled.length === 1) {
-        return `${platformLabels[enabled[0][0]]} 啟用，其他 ${entries.length - 1} 個停用`;
-      }
-      return `已啟用 ${enabled.length} / ${entries.length}`;
+      return `已啟用 ${stats.enabled} / ${stats.total}`;
+    }
+
+    function getPlatformSubSummary(game) {
+      const stats = getPlatformStats(game);
+      return `維護 ${stats.maintain}｜停用 ${stats.disabled}`;
     }
 
     function getDateOnly(dateTime) {
@@ -2494,7 +2545,7 @@
       };
 
       for (const [filterName, platform] of Object.entries(platformFilterMap)) {
-        if (filters[filterName] && game.platforms[platform] !== filters[filterName]) return false;
+        if (filters[filterName] && getPlatformStatus(game, platform) !== filters[filterName]) return false;
       }
 
       const exposureFilters = ["hot", "latest", "bonus", "multiplier10k", "jackpot"];
@@ -2522,7 +2573,7 @@
 
     function getStatusRail(game) {
       return `<div class="status-rail" aria-label="${escapeHtml(getPlatformSummary(game))}">
-        ${platforms.map((platform) => `<span class="status-segment ${escapeHtml(game.platforms[platform])}" title="${escapeHtml(platformLabels[platform])}：${escapeHtml(statusLabels[game.platforms[platform]])}"></span>`).join("")}
+        ${getPlatformEntries(game).map((entry) => `<span class="status-segment ${escapeHtml(entry.status)}" title="${escapeHtml(entry.label)}：${escapeHtml(statusLabels[entry.status])}"></span>`).join("")}
       </div>`;
     }
 
@@ -2554,7 +2605,9 @@
           <td class="platform-col">
             <div class="summary">
               <span class="summary-text">${escapeHtml(getPlatformSummary(game))}</span>
+              <span class="summary-subtext">${escapeHtml(getPlatformSubSummary(game))}</span>
               ${getStatusRail(game)}
+              <button class="summary-action" type="button" data-open-platforms="${escapeHtml(game.id)}">查看全部</button>
             </div>
           </td>
           <td class="exposure-col"><span class="tag ${exposureClass}">${escapeHtml(getExposureSummary(game))}</span></td>
@@ -2699,7 +2752,7 @@
         <section class="detail-section">
           <h3>各平台狀態</h3>
           <div class="platform-grid">
-            ${platforms.map((platform) => platformTile(platform, game.platforms[platform])).join("")}
+            ${getPlatformEntries(game).map((entry) => platformTile(entry.key, entry.status)).join("")}
           </div>
         </section>
         <section class="detail-section">
@@ -2727,6 +2780,37 @@
           <div class="detail-grid">
             ${detailItem("建立時間", game.createdAt)}
             ${detailItem("更新時間", game.updatedAt)}
+          </div>
+        </section>
+      `;
+      drawerEl.classList.add("is-open");
+      drawerBackdropEl.classList.add("is-open");
+      drawerEl.setAttribute("aria-hidden", "false");
+    }
+
+    function openPlatformDrawer(gameId) {
+      const game = games.find((item) => item.id === gameId);
+      if (!game) return;
+      const stats = getPlatformStats(game);
+
+      drawerNameEl.textContent = `平台狀態：${game.name}`;
+      drawerSubEl.textContent = `${game.id}｜${game.currentAggregator}｜${game.agent}`;
+      drawerEditButtonEl.hidden = false;
+      drawerEditButtonEl.dataset.editId = game.id;
+      drawerBodyEl.innerHTML = `
+        <section class="detail-section">
+          <h3>平台摘要</h3>
+          <div class="detail-grid">
+            ${detailItem("平台總數", stats.total)}
+            ${detailItem("已啟用", stats.enabled)}
+            ${detailItem("維護中", stats.maintain)}
+            ${detailItem("停用", stats.disabled)}
+          </div>
+        </section>
+        <section class="detail-section">
+          <h3>完整平台狀態</h3>
+          <div class="platform-grid">
+            ${getPlatformEntries(game).map((entry) => platformTile(entry.key, entry.status)).join("")}
           </div>
         </section>
       `;
@@ -2783,7 +2867,7 @@
           <section class="edit-section">
             <h3>各平台狀態</h3>
             <div class="edit-grid three">
-              ${platforms.map((platform) => selectField(platformLabels[platform], `platform.${platform}`, Object.keys(statusLabels), game.platforms[platform], statusLabels)).join("")}
+              ${platforms.map((platform) => selectField(platformLabels[platform], `platform.${platform}`, Object.keys(statusLabels), getPlatformStatus(game, platform), statusLabels)).join("")}
             </div>
           </section>
           <section class="edit-section">
@@ -2861,9 +2945,10 @@
     }
 
     function platformTile(platform, status) {
+      const normalizedStatus = status || "disabled";
       return `<div class="platform-tile">
         <div class="platform-name">${escapeHtml(platformLabels[platform])}</div>
-        <span class="tag ${escapeHtml(statusTagClass[status])}">${escapeHtml(statusLabels[status])}</span>
+        <span class="tag ${escapeHtml(statusTagClass[normalizedStatus])}">${escapeHtml(statusLabels[normalizedStatus])}</span>
       </div>`;
     }
 
@@ -3115,6 +3200,12 @@
       const copyButton = event.target.closest("[data-copy-id]");
       if (copyButton) {
         copyGameId(copyButton);
+        return;
+      }
+
+      const platformButton = event.target.closest("[data-open-platforms]");
+      if (platformButton) {
+        openPlatformDrawer(platformButton.dataset.openPlatforms);
         return;
       }
 
