@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>遊戲清單</title>
+  <title>遊戲大廳清單</title>
   <style>
     :root {
       color-scheme: light;
@@ -1027,6 +1027,42 @@
       line-height: 1.6;
     }
 
+    .sort-editor {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 150px;
+    }
+
+    .sort-editor input {
+      width: 72px;
+      min-width: 0;
+      height: 30px;
+      padding: 4px 8px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .sort-editor .button {
+      min-height: 30px;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    .upload-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 14px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
     .edit-footer {
       position: sticky;
       bottom: -28px;
@@ -1154,9 +1190,9 @@
         <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>遊戲商管理</span><span>⌄</span></button>
         <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>遊戲管理</span><span>⌃</span></button>
         <div class="submenu">
-          <a class="submenu-item active" href="game-list.html">遊戲清單</a>
+          <a class="submenu-item" href="game-list.html">遊戲清單</a>
           <a class="submenu-item" href="index.html">遊戲接入</a>
-          <a class="submenu-item" href="game-lobby-list.html">遊戲大廳清單</a>
+          <a class="submenu-item active" href="game-lobby-list.html">遊戲大廳清單</a>
           <button class="submenu-item" type="button">遊戲大廳接入</button>
         </div>
         <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>內容管理</span><span>⌄</span></button>
@@ -1178,18 +1214,18 @@
         </div>
       </header>
       <div class="tab-strip">
-        <button class="page-tab" type="button">遊戲清單 <span aria-hidden="true">×</span></button>
+        <button class="page-tab" type="button">遊戲大廳清單 <span aria-hidden="true">×</span></button>
       </div>
 
       <main class="main">
         <div class="page-head">
           <div>
-            <h1>遊戲清單</h1>
+            <h1>遊戲大廳清單</h1>
           </div>
           <div class="metrics" aria-label="摘要">
-            <div class="metric">總遊戲 <strong id="totalMetric">0</strong></div>
+            <div class="metric">總大廳 <strong id="totalMetric">0</strong></div>
             <div class="metric">啟用中 <strong id="enabledMetric">0</strong></div>
-            <div class="metric">可試玩 <strong id="demoMetric">0</strong></div>
+            <div class="metric">已顯示 <strong id="visibleMetric">0</strong></div>
           </div>
         </div>
 
@@ -1202,12 +1238,6 @@
             <button class="button" type="button" id="toggleFilters" aria-expanded="false" aria-controls="filterPanel">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18"></path><path d="M6 12h12"></path><path d="M10 19h4"></path></svg>
               篩選
-            </button>
-          </div>
-          <div class="page-actions-right">
-            <button class="button" type="button">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
-              批量上圖
             </button>
           </div>
         </div>
@@ -1235,7 +1265,15 @@
             <div class="quick-grid">
               <div class="field span-2">
                 <label for="keyword">關鍵字</label>
-                <input id="keyword" name="keyword" type="search" placeholder="ID / 編碼 / 名稱 / 簡稱">
+                <input id="keyword" name="keyword" type="search" placeholder="ID / 大廳代碼 / 大廳名稱 / 遊戲簡稱">
+              </div>
+              <div class="field">
+                <label for="lobbyCode">大廳代碼</label>
+                <input id="lobbyCode" name="lobbyCode" type="search" placeholder="例如 55018">
+              </div>
+              <div class="field">
+                <label for="lobbyName">大廳名稱</label>
+                <input id="lobbyName" name="lobbyName" type="search" placeholder="例如 Allbet">
               </div>
               <div class="field">
                 <label for="vendor">所屬遊戲商</label>
@@ -1254,16 +1292,12 @@
                 <select id="gameStatus" name="gameStatus"><option value="">全部</option></select>
               </div>
               <div class="field">
-                <label for="demo">是否試玩</label>
-                <select id="demo" name="demo">
-                  <option value="">全部</option>
-                  <option value="true">有</option>
-                  <option value="false">無</option>
-                </select>
+                <label for="status">狀態</label>
+                <select id="status" name="status"><option value="">全部</option></select>
               </div>
               <div class="field">
-                <label for="siteStatus">站點狀態</label>
-                <select id="siteStatus" name="siteStatus"><option value="">全部</option></select>
+                <label for="displayStatus">(遊戲顯示)狀態</label>
+                <select id="displayStatus" name="displayStatus"><option value="">全部</option></select>
               </div>
               <div class="field">
                 <label for="maintenance">維護狀態</label>
@@ -1272,14 +1306,18 @@
             </div>
 
             <div class="more-grid" id="moreFilters" hidden>
-              <div class="field"><label for="opsStatus">ops狀態</label><select id="opsStatus" name="opsStatus"><option value="">全部</option><option value="enabled">啟用</option><option value="disabled">停用</option><option value="maintain">維護</option></select></div>
-              <div class="field"><label for="zfStatus">zf狀態</label><select id="zfStatus" name="zfStatus"><option value="">全部</option><option value="enabled">啟用</option><option value="disabled">停用</option><option value="maintain">維護</option></select></div>
-              <div class="field"><label for="directStatus">direct狀態</label><select id="directStatus" name="directStatus"><option value="">全部</option><option value="enabled">啟用</option><option value="disabled">停用</option><option value="maintain">維護</option></select></div>
-              <div class="field"><label for="hot">人氣</label><select id="hot" name="hot"><option value="">全部</option><option value="true">有</option><option value="false">無</option></select></div>
-              <div class="field"><label for="latest">最新</label><select id="latest" name="latest"><option value="">全部</option><option value="true">有</option><option value="false">無</option></select></div>
-              <div class="field"><label for="bonus">購入BONUS</label><select id="bonus" name="bonus"><option value="">全部</option><option value="true">有</option><option value="false">無</option></select></div>
-              <div class="field"><label for="multiplier10k">1萬倍</label><select id="multiplier10k" name="multiplier10k"><option value="">全部</option><option value="true">有</option><option value="false">無</option></select></div>
-              <div class="field"><label for="jackpot">jackpot</label><select id="jackpot" name="jackpot"><option value="">全部</option><option value="true">有</option><option value="false">無</option></select></div>
+              <div class="field span-2"><label for="uid">ID</label><input id="uid" name="uid" type="search" placeholder="完整 UID"></div>
+              <div class="field span-2"><label for="vendorId">遊戲商ID</label><input id="vendorId" name="vendorId" type="search" placeholder="遊戲商 ID"></div>
+              <div class="field"><label for="imageStatus">圖片</label><select id="imageStatus" name="imageStatus"><option value="">全部</option><option value="uploaded">已上圖</option><option value="missing">未上圖</option></select></div>
+              <div class="field"><label for="sortMin">排序最小值</label><input id="sortMin" name="sortMin" type="number" min="0" placeholder="0"></div>
+              <div class="field"><label for="sortMax">排序最大值</label><input id="sortMax" name="sortMax" type="number" min="0" placeholder="9999"></div>
+              <div class="field span-2">
+                <label>建立時間區間</label>
+                <div class="date-range">
+                  <input id="createdFrom" name="createdFrom" type="date" aria-label="建立時間開始">
+                  <input id="createdTo" name="createdTo" type="date" aria-label="建立時間結束">
+                </div>
+              </div>
               <div class="field span-2">
                 <label>更新時間區間</label>
                 <div class="date-range">
@@ -1300,7 +1338,7 @@
           <button class="button quiet" type="button" id="clearApplied">清除全部</button>
         </section>
 
-        <section class="surface table-surface" aria-label="遊戲列表">
+        <section class="surface table-surface" aria-label="遊戲大廳列表">
           <div class="table-toolbar">
             <div class="bulk-actions">
               <span class="selected-count">已選 <strong id="selectedCount">0</strong></span>
@@ -1320,12 +1358,12 @@
               <thead>
                 <tr>
                   <th class="check-col"><input id="selectAll" type="checkbox" aria-label="全選"></th>
-                  <th class="game-col">遊戲資訊</th>
-                  <th class="vendor-col">遊戲商</th>
+                  <th class="game-col">大廳資訊</th>
+                  <th class="vendor-col">所屬遊戲商</th>
                   <th class="type-col">類型 / 集成商</th>
                   <th class="status-col">狀態摘要</th>
-                  <th class="platform-col">平台狀態</th>
-                  <th class="exposure-col">曝光設定</th>
+                  <th class="platform-col">排序 / 顯示</th>
+                  <th class="exposure-col">圖片 / 備註</th>
                   <th class="time-col">時間</th>
                   <th class="action-col">操作</th>
                 </tr>
@@ -1335,7 +1373,7 @@
           </div>
           <div class="card-list" id="cardList"></div>
           <div class="empty-state" id="emptyState">
-            <strong>沒有符合條件的遊戲</strong>
+            <strong>沒有符合條件的大廳</strong>
             <span>調整篩選條件後會重新整理列表。</span>
           </div>
         </section>
@@ -1344,10 +1382,10 @@
   </div>
 
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
-  <aside class="drawer" id="detailDrawer" aria-label="遊戲詳情" aria-hidden="true">
+  <aside class="drawer" id="detailDrawer" aria-label="大廳詳情" aria-hidden="true">
     <div class="drawer-head">
       <div class="drawer-title">
-        <strong id="drawerName">遊戲詳情</strong>
+        <strong id="drawerName">大廳詳情</strong>
         <span id="drawerSub">-</span>
       </div>
       <button class="button icon-only" type="button" id="closeDrawer" aria-label="關閉詳情">
@@ -1358,212 +1396,230 @@
   </aside>
 
   <script>
-    const platformKeys = ["ops", "zf", "direct", "kuma", "omg", "9game", "jili", "pg", "fc", "rich88", "ae", "awc"];
-    const platformLabels = Object.fromEntries(platformKeys.map((key) => [key, key]));
-    const statusLabels = { enabled: "啟用", disabled: "停用", maintain: "維護" };
-    const statusTagClass = { enabled: "green", disabled: "red", maintain: "amber" };
     const booleanLabels = { true: "有", false: "無" };
+    const imageLabels = { uploaded: "已上圖", missing: "未上圖" };
     const filterMeta = {
       keyword: "關鍵字",
+      lobbyCode: "大廳代碼",
+      lobbyName: "大廳名稱",
       vendor: "所屬遊戲商",
       type: "種類",
       aggregator: "當前集成商",
       gameStatus: "遊戲商狀態",
-      demo: "是否試玩",
-      siteStatus: "站點狀態",
+      status: "狀態",
+      displayStatus: "(遊戲顯示)狀態",
       maintenance: "維護狀態",
-      opsStatus: "ops狀態",
-      zfStatus: "zf狀態",
-      directStatus: "direct狀態",
-      hot: "人氣",
-      latest: "最新",
-      bonus: "購入BONUS",
-      multiplier10k: "1萬倍",
-      jackpot: "jackpot",
+      uid: "ID",
+      vendorId: "遊戲商ID",
+      imageStatus: "圖片",
+      sortMin: "排序最小值",
+      sortMax: "排序最大值",
+      createdFrom: "建立時間起",
+      createdTo: "建立時間迄",
       updatedFrom: "更新時間起",
       updatedTo: "更新時間迄"
     };
 
     const games = [
       {
-        id: "131314152352361513412412eqwasdae",
-        vendor: "Viva",
-        code: "220",
-        name: "炸金花",
-        shortName: "vp_gflower",
+        id: "226204e63a2011f1b0580242ac1b0003",
+        vendorId: "7f4a323f0954404489bba00a54de3d6a",
+        vendor: "Allbet",
+        code: "55018",
+        name: "Allbet",
+        shortName: "alb_al",
         type: "真人遊戲",
-        aggregator: "direct",
+        aggregator: "zf",
         gameStatus: "啟用",
-        demo: false,
-        siteStatus: "啟用",
+        status: "啟用",
+        displayStatus: "顯示",
         maintenance: "停用",
-        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
-        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: true, latestSort: 1000, bonus: false, bonusSort: 1, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
-        note: "",
-        createdAt: "2024-07-11 17:22:26",
-        updatedAt: "2026-05-05 17:07:32"
+        siteSort: 20,
+        imageStatus: "missing",
+        imageHint: "loading...大小限制：300KB，格式限定：*.jpg",
+        note: "-",
+        createdAt: "2026-04-17 14:41:51",
+        updatedAt: "2026-04-24 14:31:34"
       },
       {
-        id: "0002a25f7e394606aa1cb4fa447f1ca1",
-        vendor: "Viva",
-        code: "510",
-        name: "激光炮捕魚",
-        shortName: "vp_ttby",
-        type: "電子遊戲",
-        aggregator: "direct",
+        id: "226235923a2011f1b0580242ac1b0003",
+        vendorId: "e68029a60e474ab987f8f28ef5491f7c",
+        vendor: "Big Gaming",
+        code: "48001",
+        name: "傳統百家樂",
+        shortName: "bgm_bc",
+        type: "真人遊戲",
+        aggregator: "zf",
         gameStatus: "啟用",
-        demo: true,
-        siteStatus: "停用",
+        status: "啟用",
+        displayStatus: "顯示",
         maintenance: "停用",
-        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
-        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: true, latestSort: 1000, bonus: false, bonusSort: 2, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
-        note: "",
-        createdAt: "2025-09-05 09:27:02",
-        updatedAt: "2025-09-05 09:27:02"
+        siteSort: 4,
+        imageStatus: "uploaded",
+        imageHint: "已上傳 bgm_bc.jpg",
+        note: "-",
+        createdAt: "2026-04-17 14:45:08",
+        updatedAt: "2026-04-24 14:31:44"
       },
       {
-        id: "000cb49f2dae493689d602191007b497",
-        vendor: "Viva",
-        code: "600",
-        name: "21點",
-        shortName: "vp_black",
-        type: "電子遊戲",
-        aggregator: "direct",
+        id: "22623a8d3a2011f1b0580242ac1b0003",
+        vendorId: "e68029a60e474ab987f8f28ef5491f7c",
+        vendor: "Big Gaming",
+        code: "48002",
+        name: "輪盤",
+        shortName: "bgm_rl",
+        type: "真人遊戲",
+        aggregator: "zf",
         gameStatus: "啟用",
-        demo: true,
-        siteStatus: "啟用",
+        status: "啟用",
+        displayStatus: "顯示",
         maintenance: "停用",
-        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
-        exposure: { siteSort: 8, hot: false, hotSort: 1000, latest: true, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
-        note: "",
-        createdAt: "2026-05-07 12:57:16",
-        updatedAt: "2026-05-07 12:57:16"
+        siteSort: 10,
+        imageStatus: "uploaded",
+        imageHint: "已上傳 bgm_rl.jpg",
+        note: "-",
+        createdAt: "2026-04-17 14:45:14",
+        updatedAt: "2026-04-24 14:31:49"
       },
       {
-        id: "6197b597-d530-11ee-9fd6-0242ac130002",
-        vendor: "Viva",
-        code: "610",
-        name: "斗地主",
-        shortName: "vp_ddz",
-        type: "電子遊戲",
-        aggregator: "direct",
+        id: "22623df33a2011f1b0580242ac1b0003",
+        vendorId: "e68029a60e474ab987f8f28ef5491f7c",
+        vendor: "Big Gaming",
+        code: "48003",
+        name: "骰寶",
+        shortName: "bgm_sb",
+        type: "真人遊戲",
+        aggregator: "zf",
         gameStatus: "啟用",
-        demo: false,
-        siteStatus: "啟用",
+        status: "啟用",
+        displayStatus: "顯示",
         maintenance: "停用",
-        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
-        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: false, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
-        note: "",
-        createdAt: "2024-07-11 17:22:26",
-        updatedAt: "2025-07-09 14:45:42"
+        siteSort: 11,
+        imageStatus: "uploaded",
+        imageHint: "已上傳 bgm_sb.jpg",
+        note: "-",
+        createdAt: "2026-04-17 14:45:19",
+        updatedAt: "2026-04-24 14:31:55"
       },
       {
-        id: "00219dd5709b4d84a510185b483da08f",
-        vendor: "Viva",
-        code: "620",
-        name: "德州撲克",
-        shortName: "vp_holdem",
-        type: "電子遊戲",
-        aggregator: "direct",
+        id: "226240fb3a2011f1b0580242ac1b0003",
+        vendorId: "e68029a60e474ab987f8f28ef5491f7c",
+        vendor: "Big Gaming",
+        code: "48004",
+        name: "龍虎",
+        shortName: "bgm_dg",
+        type: "真人遊戲",
+        aggregator: "zf",
         gameStatus: "啟用",
-        demo: true,
-        siteStatus: "啟用",
+        status: "啟用",
+        displayStatus: "顯示",
         maintenance: "停用",
-        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
-        exposure: { siteSort: 23, hot: false, hotSort: 1000, latest: true, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
-        note: "",
-        createdAt: "2026-05-07 12:57:16",
-        updatedAt: "2026-05-07 12:57:16"
+        siteSort: 9,
+        imageStatus: "uploaded",
+        imageHint: "已上傳 bgm_dg.jpg",
+        note: "-",
+        createdAt: "2026-04-17 14:45:25",
+        updatedAt: "2026-04-24 14:32:01"
       },
       {
-        id: "003b0b1e5fc94b679f4831c27943d083",
-        vendor: "Viva",
-        code: "630",
-        name: "十三水",
-        shortName: "vp_sss",
-        type: "電子遊戲",
-        aggregator: "direct",
+        id: "226244243a2011f1b0580242ac1b0003",
+        vendorId: "e68029a60e474ab987f8f28ef5491f7c",
+        vendor: "Big Gaming",
+        code: "48005",
+        name: "紅黑大戰",
+        shortName: "bgm_rb",
+        type: "真人遊戲",
+        aggregator: "zf",
         gameStatus: "啟用",
-        demo: true,
-        siteStatus: "停用",
+        status: "啟用",
+        displayStatus: "顯示",
         maintenance: "停用",
-        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
-        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: false, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
-        note: "",
-        createdAt: "2025-09-04 14:34:52",
-        updatedAt: "2025-09-04 14:34:52"
+        siteSort: 13,
+        imageStatus: "uploaded",
+        imageHint: "已上傳 bgm_rb.jpg",
+        note: "-",
+        createdAt: "2026-04-17 14:45:31",
+        updatedAt: "2026-04-24 14:32:06"
       },
       {
-        id: "65d25dc7-d530-11ee-9fd6-0242ac130002",
-        vendor: "Viva",
-        code: "640",
-        name: "跑得快",
-        shortName: "vp_pdk",
-        type: "電子遊戲",
-        aggregator: "direct",
+        id: "2262472b3a2011f1b0580242ac1b0003",
+        vendorId: "e68029a60e474ab987f8f28ef5491f7c",
+        vendor: "Big Gaming",
+        code: "48006",
+        name: "極速骰寶",
+        shortName: "bgm_ssb",
+        type: "真人遊戲",
+        aggregator: "zf",
         gameStatus: "啟用",
-        demo: false,
-        siteStatus: "啟用",
+        status: "啟用",
+        displayStatus: "顯示",
         maintenance: "停用",
-        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
-        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: false, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
-        note: "",
-        createdAt: "2024-07-11 17:22:26",
-        updatedAt: "2025-12-01 18:51:16"
+        siteSort: 12,
+        imageStatus: "uploaded",
+        imageHint: "已上傳 bgm_ssb.jpg",
+        note: "-",
+        createdAt: "2026-04-17 14:45:37",
+        updatedAt: "2026-04-24 14:32:12"
       },
       {
-        id: "0040de4dd859477e957d4597d9b853c6",
-        vendor: "Viva",
-        code: "720",
-        name: "二八杠",
-        shortName: "vp_erba",
-        type: "電子遊戲",
-        aggregator: "direct",
+        id: "22624b4b3a2011f1b0580242ac1b0003",
+        vendorId: "e68029a60e474ab987f8f28ef5491f7c",
+        vendor: "Big Gaming",
+        code: "48007",
+        name: "極速百家樂",
+        shortName: "bgm_sbc",
+        type: "真人遊戲",
+        aggregator: "zf",
         gameStatus: "啟用",
-        demo: true,
-        siteStatus: "停用",
+        status: "啟用",
+        displayStatus: "顯示",
         maintenance: "停用",
-        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
-        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: false, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
-        note: "",
-        createdAt: "2025-07-09 14:45:50",
-        updatedAt: "2025-07-09 14:45:50"
+        siteSort: 5,
+        imageStatus: "uploaded",
+        imageHint: "已上傳 bgm_sbc.jpg",
+        note: "-",
+        createdAt: "2026-04-17 14:45:43",
+        updatedAt: "2026-04-24 14:32:19"
       },
       {
-        id: "00f504bc10aa4e9eaf9bfc4fd1eb21e7",
-        vendor: "Viva",
-        code: "730",
-        name: "搶庄牌九",
-        shortName: "vp_qzpj",
-        type: "電子遊戲",
-        aggregator: "direct",
+        id: "22624f513a2011f1b0580242ac1b0003",
+        vendorId: "e68029a60e474ab987f8f28ef5491f7c",
+        vendor: "Big Gaming",
+        code: "48008",
+        name: "超級六",
+        shortName: "bgm_six",
+        type: "真人遊戲",
+        aggregator: "zf",
         gameStatus: "啟用",
-        demo: true,
-        siteStatus: "停用",
+        status: "停用",
+        displayStatus: "隱藏",
         maintenance: "停用",
-        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
-        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: false, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
-        note: "",
-        createdAt: "2026-04-28 12:04:25",
-        updatedAt: "2026-04-28 12:04:25"
+        siteSort: 18,
+        imageStatus: "missing",
+        imageHint: "未上圖",
+        note: "待確認顯示設定",
+        createdAt: "2026-04-17 14:45:49",
+        updatedAt: "2026-04-24 14:32:25"
       },
       {
-        id: "010c2d14e5bb4788a24d9628d4de1226",
-        vendor: "Viva",
-        code: "740",
-        name: "百人牛牛",
-        shortName: "vp_bairennn",
-        type: "電子遊戲",
-        aggregator: "direct",
+        id: "226252813a2011f1b0580242ac1b0003",
+        vendorId: "7f4a323f0954404489bba00a54de3d6a",
+        vendor: "Allbet",
+        code: "55022",
+        name: "Allbet 體驗廳",
+        shortName: "alb_demo",
+        type: "真人遊戲",
+        aggregator: "zf",
         gameStatus: "啟用",
-        demo: true,
-        siteStatus: "停用",
-        maintenance: "停用",
-        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
-        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: false, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
-        note: "",
-        createdAt: "2026-04-28 12:04:25",
-        updatedAt: "2026-04-28 12:04:25"
+        status: "啟用",
+        displayStatus: "顯示",
+        maintenance: "維護中",
+        siteSort: 28,
+        imageStatus: "uploaded",
+        imageHint: "已上傳 alb_demo.jpg",
+        note: "維護排程中",
+        createdAt: "2026-04-17 14:46:12",
+        updatedAt: "2026-05-01 10:12:08"
       }
     ];
 
@@ -1614,7 +1670,8 @@
       fillOptions("type", getUnique("type"));
       fillOptions("aggregator", getUnique("aggregator"));
       fillOptions("gameStatus", getUnique("gameStatus"));
-      fillOptions("siteStatus", getUnique("siteStatus"));
+      fillOptions("status", getUnique("status"));
+      fillOptions("displayStatus", getUnique("displayStatus"));
       fillOptions("maintenance", getUnique("maintenance"));
     }
 
@@ -1622,90 +1679,30 @@
       return Object.fromEntries(new FormData(form).entries());
     }
 
-    function getPlatformStatus(game, platform) {
-      return game.platforms?.[platform] || "disabled";
-    }
-
-    function getPlatformEntries(game) {
-      return platformKeys.map((platform) => ({
-        key: platform,
-        label: platformLabels[platform] || platform,
-        status: getPlatformStatus(game, platform)
-      }));
-    }
-
-    function getPlatformStats(game) {
-      const entries = getPlatformEntries(game);
-      return {
-        total: entries.length,
-        enabled: entries.filter((entry) => entry.status === "enabled").length,
-        maintain: entries.filter((entry) => entry.status === "maintain").length,
-        disabled: entries.filter((entry) => entry.status === "disabled").length
-      };
-    }
-
-    function getPlatformSummary(game) {
-      const stats = getPlatformStats(game);
-      return stats.enabled === 0 ? "全部停用" : `已啟用 ${stats.enabled} / ${stats.total}`;
-    }
-
-    function getPlatformSubSummary(game) {
-      const stats = getPlatformStats(game);
-      return `維護 ${stats.maintain}｜停用 ${stats.disabled}`;
-    }
-
-    function getStatusRail(game) {
-      return `<div class="status-rail" aria-label="${escapeHtml(getPlatformSummary(game))}">
-        ${getPlatformEntries(game).map((entry) => `<span class="status-segment ${escapeHtml(entry.status)}" title="${escapeHtml(entry.label)}：${escapeHtml(statusLabels[entry.status])}"></span>`).join("")}
-      </div>`;
-    }
-
-    function getExposureCustomCount(exposure) {
-      return [
-        exposure.siteSort !== 1000,
-        exposure.hot,
-        exposure.hotSort !== 1000,
-        exposure.latest,
-        exposure.latestSort !== 1000,
-        exposure.bonus,
-        exposure.bonusSort !== 1000 && exposure.bonusSort !== 1 && exposure.bonusSort !== 2,
-        exposure.multiplier10k,
-        exposure.multiplierSort !== 1000,
-        exposure.jackpot,
-        exposure.jpSort !== 1000
-      ].filter(Boolean).length;
-    }
-
-    function getExposureSummary(game) {
-      const count = getExposureCustomCount(game.exposure);
-      return count === 0 ? "預設" : `已自訂 ${count} 項`;
-    }
-
     function matchesFilter(game, filters) {
       const keyword = filters.keyword.trim().toLowerCase();
       if (keyword) {
-        const haystack = [game.id, game.code, game.name, game.shortName, game.vendor, game.aggregator].join(" ").toLowerCase();
+        const haystack = [game.id, game.vendorId, game.code, game.name, game.shortName, game.vendor, game.aggregator].join(" ").toLowerCase();
         if (!haystack.includes(keyword)) return false;
       }
 
-      const exactFields = ["vendor", "type", "aggregator", "gameStatus", "siteStatus", "maintenance"];
+      if (filters.uid && !game.id.toLowerCase().includes(filters.uid.trim().toLowerCase())) return false;
+      if (filters.vendorId && !game.vendorId.toLowerCase().includes(filters.vendorId.trim().toLowerCase())) return false;
+      if (filters.lobbyCode && !game.code.toLowerCase().includes(filters.lobbyCode.trim().toLowerCase())) return false;
+      if (filters.lobbyName && !game.name.toLowerCase().includes(filters.lobbyName.trim().toLowerCase())) return false;
+
+      const exactFields = ["vendor", "type", "aggregator", "gameStatus", "status", "displayStatus", "maintenance", "imageStatus"];
       for (const field of exactFields) {
         if (filters[field] && game[field] !== filters[field]) return false;
       }
 
-      if (filters.demo && String(game.demo) !== filters.demo) return false;
+      if (filters.sortMin && game.siteSort < Number(filters.sortMin)) return false;
+      if (filters.sortMax && game.siteSort > Number(filters.sortMax)) return false;
 
-      const platformMap = { opsStatus: "ops", zfStatus: "zf", directStatus: "direct" };
-      for (const [filterName, platform] of Object.entries(platformMap)) {
-        if (filters[filterName] && getPlatformStatus(game, platform) !== filters[filterName]) return false;
-      }
-
-      const exposureFilters = ["hot", "latest", "bonus", "multiplier10k", "jackpot"];
-      for (const key of exposureFilters) {
-        if (filters[key] && String(game.exposure[key]) !== filters[key]) return false;
-      }
-
+      const createdDate = game.createdAt.slice(0, 10);
       const updatedDate = game.updatedAt.slice(0, 10);
+      if (filters.createdFrom && createdDate < filters.createdFrom) return false;
+      if (filters.createdTo && createdDate > filters.createdTo) return false;
       if (filters.updatedFrom && updatedDate < filters.updatedFrom) return false;
       if (filters.updatedTo && updatedDate > filters.updatedTo) return false;
 
@@ -1713,12 +1710,19 @@
     }
 
     function getStatusDot(status) {
-      const className = status === "啟用" ? "enabled" : status === "維護" || status === "維護中" ? "maintain" : "";
+      const className = status === "啟用" || status === "顯示" ? "enabled" : status === "維護" || status === "維護中" ? "maintain" : "";
       return `<span class="status-dot ${className}">${escapeHtml(status)}</span>`;
     }
 
-    function getBooleanTag(value) {
-      return value ? `<span class="tag green">有</span>` : `<span class="tag red">無</span>`;
+    function getStatusTag(status) {
+      const color = status === "啟用" || status === "顯示" ? "green" : status === "維護" || status === "維護中" ? "amber" : "red";
+      return `<span class="tag ${color}">${escapeHtml(status)}</span>`;
+    }
+
+    function getImageTag(status) {
+      return status === "uploaded"
+        ? `<span class="tag green">${escapeHtml(imageLabels[status])}</span>`
+        : `<span class="tag amber">${escapeHtml(imageLabels[status])}</span>`;
     }
 
     function renderRows() {
@@ -1737,23 +1741,25 @@
           <td class="status-col">
             <div class="summary">
               ${getStatusDot(game.gameStatus)}
-              <span class="summary-subtext">試玩：${game.demo ? "有" : "無"}｜站點：${escapeHtml(game.siteStatus)}</span>
+              <span class="summary-subtext">狀態：${escapeHtml(game.status)}｜顯示：${escapeHtml(game.displayStatus)}</span>
               <span class="summary-subtext">維護：${escapeHtml(game.maintenance)}</span>
             </div>
           </td>
           <td class="platform-col">
             <div class="summary">
-              <span class="summary-text">${escapeHtml(getPlatformSummary(game))}</span>
-              <span class="summary-subtext">${escapeHtml(getPlatformSubSummary(game))}</span>
-              ${getStatusRail(game)}
-              <button class="summary-action" type="button" data-open-platforms="${escapeHtml(game.id)}">查看全部</button>
+              <span class="summary-text">站點排序 ${escapeHtml(game.siteSort)}</span>
+              <span class="summary-subtext">${escapeHtml(game.displayStatus)}｜${escapeHtml(game.maintenance)}</span>
+              <div class="sort-editor">
+                <input type="number" min="0" value="${escapeHtml(game.siteSort)}" data-sort-input="${escapeHtml(game.id)}" aria-label="站點排序 ${escapeHtml(game.name)}">
+                <button class="button" type="button" data-save-sort="${escapeHtml(game.id)}">保存</button>
+              </div>
             </div>
           </td>
           <td class="exposure-col">
             <div class="summary">
-              <span class="summary-text">${escapeHtml(getExposureSummary(game))}</span>
-              <span class="summary-subtext">站點排序 ${escapeHtml(game.exposure.siteSort)}</span>
-              <button class="summary-action" type="button" data-open-exposure="${escapeHtml(game.id)}">查看設定</button>
+              <span class="summary-text">${getImageTag(game.imageStatus)}</span>
+              <span class="summary-subtext">${escapeHtml(game.note || "-")}</span>
+              <button class="summary-action" type="button" data-open-edit="${escapeHtml(game.id)}">圖片設定</button>
             </div>
           </td>
           <td class="time-col">
@@ -1788,8 +1794,8 @@
         ${gameIdMarkup(game)}
         <div class="card-meta">
           <div class="card-meta-item"><span>種類 / 集成商</span><strong>${escapeHtml(game.type)} / ${escapeHtml(game.aggregator)}</strong></div>
-          <div class="card-meta-item"><span>平台</span><strong>${escapeHtml(getPlatformSummary(game))}</strong></div>
-          <div class="card-meta-item"><span>曝光</span><strong>${escapeHtml(getExposureSummary(game))}</strong></div>
+          <div class="card-meta-item"><span>排序 / 顯示</span><strong>${escapeHtml(game.siteSort)} / ${escapeHtml(game.displayStatus)}</strong></div>
+          <div class="card-meta-item"><span>圖片</span><strong>${escapeHtml(imageLabels[game.imageStatus])}</strong></div>
           <div class="card-meta-item"><span>更新時間</span><strong>${escapeHtml(game.updatedAt.slice(0, 10))}</strong></div>
         </div>
         <div class="row-actions">
@@ -1801,7 +1807,6 @@
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             詳情
           </button>
-          <button class="button" type="button" data-open-platforms="${escapeHtml(game.id)}">平台</button>
         </div>
       </article>`).join("");
 
@@ -1813,7 +1818,7 @@
       return `<div class="game-info">
         <div class="game-name">${escapeHtml(game.name)} <span class="muted-line">${escapeHtml(game.shortName)}</span></div>
         ${gameIdMarkup(game)}
-        <div class="game-meta">編碼 ${escapeHtml(game.code)}</div>
+        <div class="game-meta">大廳代碼 ${escapeHtml(game.code)}</div>
       </div>`;
     }
 
@@ -1827,8 +1832,7 @@
     }
 
     function getChipValue(key, value) {
-      if (["demo", "hot", "latest", "bonus", "multiplier10k", "jackpot"].includes(key)) return booleanLabels[value];
-      if (key.endsWith("Status") && ["enabled", "disabled", "maintain"].includes(value)) return statusLabels[value];
+      if (key === "imageStatus") return imageLabels[value];
       return value;
     }
 
@@ -1844,8 +1848,8 @@
 
     function renderMetrics() {
       document.getElementById("totalMetric").textContent = games.length;
-      document.getElementById("enabledMetric").textContent = games.filter((game) => game.siteStatus === "啟用").length;
-      document.getElementById("demoMetric").textContent = games.filter((game) => game.demo).length;
+      document.getElementById("enabledMetric").textContent = games.filter((game) => game.status === "啟用").length;
+      document.getElementById("visibleMetric").textContent = games.filter((game) => game.displayStatus === "顯示").length;
     }
 
     function applyFilters() {
@@ -1875,15 +1879,9 @@
     function openDrawer(gameId, mode = "detail") {
       const game = games.find((item) => item.id === gameId);
       if (!game) return;
-      drawerNameEl.textContent = mode === "platforms" ? `平台狀態：${game.name}` : mode === "exposure" ? `曝光設定：${game.name}` : mode === "edit" ? `編輯：${game.name}` : game.name;
+      drawerNameEl.textContent = mode === "edit" ? `編輯：${game.name}` : game.name;
       drawerSubEl.textContent = `${game.id}｜${game.vendor}｜${game.code}`;
-      drawerBodyEl.innerHTML = mode === "platforms"
-        ? renderPlatformDetail(game)
-        : mode === "exposure"
-          ? renderExposureDetail(game)
-          : mode === "edit"
-            ? renderEditForm(game)
-            : renderGameDetail(game);
+      drawerBodyEl.innerHTML = mode === "edit" ? renderEditForm(game) : renderGameDetail(game);
       drawerEl.classList.add("is-open");
       drawerBackdropEl.classList.add("is-open");
       drawerEl.setAttribute("aria-hidden", "false");
@@ -1899,88 +1897,70 @@
       return `<div class="detail-item"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`;
     }
 
-    function platformTile(entry) {
-      return `<div class="platform-tile"><div class="platform-name">${escapeHtml(entry.label)}</div><span class="tag ${escapeHtml(statusTagClass[entry.status])}">${escapeHtml(statusLabels[entry.status])}</span></div>`;
-    }
-
     function renderGameDetail(game) {
       return `
         <section class="detail-section"><h3>基本資料</h3><div class="detail-grid">
-          ${detailItem("完整 ID", game.id)}
-          ${detailItem("遊戲編碼", game.code)}
-          ${detailItem("遊戲名稱", game.name)}
+          ${detailItem("UID", game.id)}
+          ${detailItem("遊戲商ID", game.vendorId)}
+          ${detailItem("大廳代碼", game.code)}
+          ${detailItem("大廳名稱", game.name)}
           ${detailItem("遊戲簡稱", game.shortName)}
           ${detailItem("所屬遊戲商", game.vendor)}
           ${detailItem("當前集成商", game.aggregator)}
           ${detailItem("種類", game.type)}
-          ${detailItem("備註", game.note || "無")}
         </div></section>
         <section class="detail-section"><h3>狀態</h3><div class="detail-grid">
           ${detailItem("遊戲商狀態", game.gameStatus)}
-          ${detailItem("是否試玩", game.demo ? "有" : "無")}
-          ${detailItem("站點狀態", game.siteStatus)}
+          ${detailItem("狀態", game.status)}
+          ${detailItem("(遊戲顯示)狀態", game.displayStatus)}
           ${detailItem("維護狀態", game.maintenance)}
         </div></section>
-        ${renderPlatformDetail(game)}
-        ${renderExposureDetail(game)}
+        <section class="detail-section"><h3>顯示與圖片</h3><div class="detail-grid">
+          ${detailItem("站點遊戲排序", game.siteSort)}
+          ${detailItem("圖片", imageLabels[game.imageStatus])}
+          ${detailItem("圖片限制", game.imageHint)}
+          ${detailItem("備註", game.note || "-")}
+        </div></section>
         <section class="detail-section"><h3>時間</h3><div class="detail-grid">
           ${detailItem("建立時間", game.createdAt)}
           ${detailItem("更新時間", game.updatedAt)}
         </div></section>`;
     }
 
-    function renderPlatformDetail(game) {
-      const stats = getPlatformStats(game);
-      return `<section class="detail-section"><h3>平台摘要</h3><div class="detail-grid">
-          ${detailItem("平台總數", stats.total)}
-          ${detailItem("已啟用", stats.enabled)}
-          ${detailItem("維護中", stats.maintain)}
-          ${detailItem("停用", stats.disabled)}
-        </div></section>
-        <section class="detail-section"><h3>完整平台狀態</h3><div class="platform-grid">
-          ${getPlatformEntries(game).map(platformTile).join("")}
-        </div></section>`;
-    }
-
-    function renderExposureDetail(game) {
-      const exposure = game.exposure;
-      return `<section class="detail-section"><h3>曝光與排序</h3><div class="exposure-grid">
-        ${detailItem("站點遊戲排序", exposure.siteSort)}
-        ${detailItem("人氣", exposure.hot ? "有" : "無")}
-        ${detailItem("人氣遊戲排序", exposure.hotSort)}
-        ${detailItem("最新", exposure.latest ? "有" : "無")}
-        ${detailItem("最新排序", exposure.latestSort)}
-        ${detailItem("購入BONUS", exposure.bonus ? "有" : "無")}
-        ${detailItem("購入排序", exposure.bonusSort)}
-        ${detailItem("1萬倍", exposure.multiplier10k ? "有" : "無")}
-        ${detailItem("1萬倍排序", exposure.multiplierSort)}
-        ${detailItem("jackpot", exposure.jackpot ? "有" : "無")}
-        ${detailItem("JP排序", exposure.jpSort)}
-      </div></section>`;
-    }
-
     function renderEditForm(game) {
       return `<form class="edit-form" id="editGameForm" data-game-id="${escapeHtml(game.id)}">
         <section class="edit-section"><h3>基本資料</h3><div class="edit-grid">
-          ${textField("遊戲名稱", "name", game.name)}
+          ${textField("UID", "id", game.id, true)}
+          ${textField("遊戲商ID", "vendorId", game.vendorId, true)}
+          ${textField("大廳名稱", "name", game.name)}
+          ${textField("大廳代碼", "code", game.code)}
           ${textField("遊戲簡稱", "shortName", game.shortName)}
-          ${textField("遊戲編碼", "code", game.code)}
           ${selectField("種類", "type", getUnique("type"), game.type)}
           ${selectField("當前集成商", "aggregator", getUnique("aggregator"), game.aggregator)}
-          ${selectField("站點狀態", "siteStatus", getUnique("siteStatus"), game.siteStatus)}
-          ${selectField("維護狀態", "maintenance", getUnique("maintenance"), game.maintenance)}
-          ${selectField("遊戲商狀態", "gameStatus", getUnique("gameStatus"), game.gameStatus)}
         </div></section>
-        <section class="edit-section"><h3>平台狀態</h3><div class="edit-grid">
-          ${platformKeys.map((platform) => selectField(platformLabels[platform], `platform.${platform}`, Object.keys(statusLabels), getPlatformStatus(game, platform), statusLabels)).join("")}
+        <section class="edit-section"><h3>狀態與顯示</h3><div class="edit-grid">
+          ${selectField("遊戲商狀態", "gameStatus", getUnique("gameStatus"), game.gameStatus)}
+          ${selectField("狀態", "status", getUnique("status"), game.status)}
+          ${selectField("(遊戲顯示)狀態", "displayStatus", getUnique("displayStatus"), game.displayStatus)}
+          ${selectField("維護狀態", "maintenance", getUnique("maintenance"), game.maintenance)}
+          ${numberField("站點遊戲排序", "siteSort", game.siteSort)}
+          ${selectField("圖片", "imageStatus", Object.keys(imageLabels), game.imageStatus, imageLabels)}
+        </div></section>
+        <section class="edit-section"><h3>圖片</h3><div class="upload-box">
+          <button class="button" type="button">Click to upload</button>
+          <span>${escapeHtml(game.imageHint)}</span>
         </div></section>
         <section class="edit-section"><h3>備註</h3><div class="edit-field"><label for="edit-note">備註</label><textarea id="edit-note" name="note">${escapeHtml(game.note)}</textarea></div></section>
         <div class="edit-footer"><button class="button" type="button" data-cancel-edit="${escapeHtml(game.id)}">取消</button><button class="button primary" type="submit">儲存</button></div>
       </form>`;
     }
 
-    function textField(label, name, value) {
-      return `<div class="edit-field"><label for="edit-${escapeHtml(name)}">${escapeHtml(label)}</label><input id="edit-${escapeHtml(name)}" name="${escapeHtml(name)}" value="${escapeHtml(value)}"></div>`;
+    function textField(label, name, value, readonly = false) {
+      return `<div class="edit-field"><label for="edit-${escapeHtml(name)}">${escapeHtml(label)}</label><input id="edit-${escapeHtml(name)}" name="${escapeHtml(name)}" value="${escapeHtml(value)}" ${readonly ? "readonly" : ""}></div>`;
+    }
+
+    function numberField(label, name, value) {
+      return `<div class="edit-field"><label for="edit-${escapeHtml(name)}">${escapeHtml(label)}</label><input id="edit-${escapeHtml(name)}" name="${escapeHtml(name)}" type="number" min="0" value="${escapeHtml(value)}"></div>`;
     }
 
     function selectField(label, name, values, current, labels = {}) {
@@ -1996,17 +1976,27 @@
       game.code = editForm.elements.code.value.trim();
       game.type = editForm.elements.type.value;
       game.aggregator = editForm.elements.aggregator.value;
-      game.siteStatus = editForm.elements.siteStatus.value;
-      game.maintenance = editForm.elements.maintenance.value;
       game.gameStatus = editForm.elements.gameStatus.value;
+      game.status = editForm.elements.status.value;
+      game.displayStatus = editForm.elements.displayStatus.value;
+      game.maintenance = editForm.elements.maintenance.value;
+      game.siteSort = Number(editForm.elements.siteSort.value) || 0;
+      game.imageStatus = editForm.elements.imageStatus.value;
+      game.imageHint = game.imageStatus === "uploaded" ? `已上傳 ${game.shortName}.jpg` : "未上圖";
       game.note = editForm.elements.note.value.trim();
-      platformKeys.forEach((platform) => {
-        game.platforms[platform] = editForm.elements[`platform.${platform}`].value;
-      });
       game.updatedAt = getCurrentTimestamp();
       renderMetrics();
       applyFilters();
       openDrawer(game.id);
+    }
+
+    function saveInlineSort(gameId) {
+      const game = games.find((item) => item.id === gameId);
+      const input = document.querySelector(`[data-sort-input="${CSS.escape(gameId)}"]`);
+      if (!game || !input) return;
+      game.siteSort = Number(input.value) || 0;
+      game.updatedAt = getCurrentTimestamp();
+      applyFilters();
     }
 
     function getCurrentTimestamp() {
@@ -2083,6 +2073,11 @@
         copyGameId(copyButton);
         return;
       }
+      const sortButton = event.target.closest("[data-save-sort]");
+      if (sortButton) {
+        saveInlineSort(sortButton.dataset.saveSort);
+        return;
+      }
       const detailButton = event.target.closest("[data-open-detail]");
       if (detailButton) {
         openDrawer(detailButton.dataset.openDetail);
@@ -2092,15 +2087,6 @@
       if (editButton) {
         openDrawer(editButton.dataset.openEdit, "edit");
         return;
-      }
-      const platformButton = event.target.closest("[data-open-platforms]");
-      if (platformButton) {
-        openDrawer(platformButton.dataset.openPlatforms, "platforms");
-        return;
-      }
-      const exposureButton = event.target.closest("[data-open-exposure]");
-      if (exposureButton) {
-        openDrawer(exposureButton.dataset.openExposure, "exposure");
       }
     });
 
@@ -2131,7 +2117,7 @@
     });
 
     drawerBodyEl.addEventListener("submit", (event) => {
-      if (event.target.id !== "editGameForm") return;
+      if (event.target.getAttribute("id") !== "editGameForm") return;
       event.preventDefault();
       saveEditedGame(event.target);
     });

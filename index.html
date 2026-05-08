@@ -1586,7 +1586,7 @@
         <div class="submenu">
           <a class="submenu-item" href="game-list.html">遊戲清單</a>
           <a class="submenu-item active" href="index.html">遊戲接入</a>
-          <button class="submenu-item" type="button">遊戲大廳清單</button>
+          <a class="submenu-item" href="game-lobby-list.html">遊戲大廳清單</a>
           <button class="submenu-item" type="button">遊戲大廳接入</button>
         </div>
         <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>內容管理</span><span>⌄</span></button>
@@ -1635,6 +1635,10 @@
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
             新增遊戲
           </button>
+          <button class="button" type="button" id="toggleFilters" aria-expanded="false" aria-controls="filterPanel">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18"></path><path d="M6 12h12"></path><path d="M10 19h4"></path></svg>
+            篩選
+          </button>
         </div>
         <div class="page-actions-right">
           <button class="import-button" type="button">遊戲種類匯入</button>
@@ -1645,7 +1649,7 @@
         </div>
       </div>
 
-      <section class="surface filter-surface" aria-label="篩選">
+      <section class="surface filter-surface" id="filterPanel" aria-label="篩選" hidden>
         <form id="filterForm">
           <div class="filter-bar">
             <h2>快速篩選</h2>
@@ -1653,7 +1657,6 @@
               <button class="button" type="button" id="moreToggle" aria-expanded="false" aria-controls="moreFilters">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18"></path><path d="M6 12h12"></path><path d="M10 19h4"></path></svg>
                 更多篩選
-                <svg class="icon chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
               </button>
               <button class="button primary" type="submit" id="applyFiltersButton">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3"></path><circle cx="11" cy="11" r="8"></circle></svg>
@@ -2581,7 +2584,6 @@
     function renderRows() {
       rowsEl.innerHTML = filteredGames.map((game) => {
         const checked = selectedIds.has(game.id) ? "checked" : "";
-        const exposureClass = isDefaultExposure(game.exposure) ? "" : "violet";
 
         return `<tr>
           <td class="check-col">
@@ -2611,7 +2613,13 @@
               <button class="summary-action" type="button" data-open-platforms="${escapeHtml(game.id)}">查看全部</button>
             </div>
           </td>
-          <td class="exposure-col"><span class="tag ${exposureClass}">${escapeHtml(getExposureSummary(game))}</span></td>
+          <td class="exposure-col">
+            <div class="summary">
+              <span class="summary-text">${escapeHtml(getExposureSummary(game))}</span>
+              <span class="summary-subtext">站點排序 ${escapeHtml(formatSort(game.exposure.siteSort))}</span>
+              <button class="summary-action" type="button" data-open-exposure="${escapeHtml(game.id)}">查看設定</button>
+            </div>
+          </td>
           <td class="time-col">
             <div class="game-info">
               <div class="summary-text">${escapeHtml(getDateOnly(game.updatedAt))}</div>
@@ -2756,22 +2764,7 @@
             ${getPlatformEntries(game).map((entry) => platformTile(entry.key, entry.status)).join("")}
           </div>
         </section>
-        <section class="detail-section">
-          <h3>曝光設定</h3>
-          <div class="exposure-list">
-            ${detailItem("站點遊戲排序", formatSort(game.exposure.siteSort))}
-            ${detailItem("人氣", formatBoolean(game.exposure.hot))}
-            ${detailItem("人氣遊戲排序", formatSort(game.exposure.hotSort))}
-            ${detailItem("最新", formatBoolean(game.exposure.latest))}
-            ${detailItem("最新排序", formatSort(game.exposure.latestSort))}
-            ${detailItem("購入BONUS", formatBoolean(game.exposure.bonus))}
-            ${detailItem("購入排序", formatSort(game.exposure.bonusSort))}
-            ${detailItem("1萬倍", formatBoolean(game.exposure.multiplier10k))}
-            ${detailItem("1萬倍排序", formatSort(game.exposure.multiplierSort))}
-            ${detailItem("jackpot", formatBoolean(game.exposure.jackpot))}
-            ${detailItem("JP排序", formatSort(game.exposure.jpSort))}
-          </div>
-        </section>
+        ${renderExposureSection(game)}
         <section class="detail-section">
           <h3>備註</h3>
           <div class="note">${escapeHtml(game.note)}</div>
@@ -2818,6 +2811,39 @@
       drawerEl.classList.add("is-open");
       drawerBackdropEl.classList.add("is-open");
       drawerEl.setAttribute("aria-hidden", "false");
+    }
+
+    function openExposureDrawer(gameId) {
+      const game = games.find((item) => item.id === gameId);
+      if (!game) return;
+
+      drawerNameEl.textContent = `曝光設定：${game.name}`;
+      drawerSubEl.textContent = `${game.id}｜${game.currentAggregator}｜${game.agent}`;
+      drawerEditButtonEl.hidden = false;
+      drawerEditButtonEl.dataset.editId = game.id;
+      drawerBodyEl.innerHTML = renderExposureSection(game);
+      drawerEl.classList.add("is-open");
+      drawerBackdropEl.classList.add("is-open");
+      drawerEl.setAttribute("aria-hidden", "false");
+    }
+
+    function renderExposureSection(game) {
+      return `<section class="detail-section">
+        <h3>曝光設定</h3>
+        <div class="exposure-list">
+          ${detailItem("站點遊戲排序", formatSort(game.exposure.siteSort))}
+          ${detailItem("人氣", formatBoolean(game.exposure.hot))}
+          ${detailItem("人氣遊戲排序", formatSort(game.exposure.hotSort))}
+          ${detailItem("最新", formatBoolean(game.exposure.latest))}
+          ${detailItem("最新排序", formatSort(game.exposure.latestSort))}
+          ${detailItem("購入BONUS", formatBoolean(game.exposure.bonus))}
+          ${detailItem("購入排序", formatSort(game.exposure.bonusSort))}
+          ${detailItem("1萬倍", formatBoolean(game.exposure.multiplier10k))}
+          ${detailItem("1萬倍排序", formatSort(game.exposure.multiplierSort))}
+          ${detailItem("jackpot", formatBoolean(game.exposure.jackpot))}
+          ${detailItem("JP排序", formatSort(game.exposure.jpSort))}
+        </div>
+      </section>`;
     }
 
     function closeDrawer() {
@@ -3162,6 +3188,14 @@
       panel.hidden = expanded;
     });
 
+    document.getElementById("toggleFilters").addEventListener("click", (event) => {
+      const button = event.currentTarget;
+      const panel = document.getElementById("filterPanel");
+      const expanded = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", String(!expanded));
+      panel.hidden = expanded;
+    });
+
     document.getElementById("resetFilters").addEventListener("click", resetFilters);
     document.getElementById("clearApplied").addEventListener("click", resetFilters);
 
@@ -3207,6 +3241,12 @@
       const platformButton = event.target.closest("[data-open-platforms]");
       if (platformButton) {
         openPlatformDrawer(platformButton.dataset.openPlatforms);
+        return;
+      }
+
+      const exposureButton = event.target.closest("[data-open-exposure]");
+      if (exposureButton) {
+        openExposureDrawer(exposureButton.dataset.openExposure);
         return;
       }
 
