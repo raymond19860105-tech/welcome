@@ -1,0 +1,2138 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>遊戲清單</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef3f8;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --line: #dce3ea;
+      --line-strong: #c7d1dc;
+      --text: #172121;
+      --muted: #6a747e;
+      --subtle: #89939d;
+      --blue: #5961cf;
+      --blue-strong: #4852bd;
+      --green: #138a29;
+      --green-soft: #e9f8ed;
+      --red: #e00000;
+      --red-soft: #fff0f0;
+      --amber: #a35c00;
+      --amber-soft: #fff4df;
+      --teal: #0f8b8d;
+      --teal-soft: #e5f6f4;
+      --shadow: 0 18px 48px rgba(23, 33, 33, 0.14);
+      --radius: 8px;
+      --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    html {
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      width: 210px;
+      min-height: 100vh;
+      flex: 0 0 210px;
+      border-right: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .sidebar-logo {
+      padding: 14px 16px 10px;
+      color: #5867d8;
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .sidebar-menu {
+      padding: 8px 0 18px;
+    }
+
+    .menu-item,
+    .submenu-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 44px;
+      padding: 0 18px;
+      border: 0;
+      background: transparent;
+      color: #303a3a;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .menu-item {
+      justify-content: space-between;
+    }
+
+    .menu-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .menu-drag {
+      color: #7b8786;
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    .menu-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 25px;
+      height: 18px;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: #d90000;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .submenu {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .submenu-item {
+      min-height: 50px;
+      padding-left: 36px;
+      color: #343d3d;
+      text-decoration: none;
+    }
+
+    .submenu-item.active {
+      background: #e8edf2;
+      color: #4f63d9;
+    }
+
+    .app-main {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .workspace-header {
+      position: sticky;
+      top: 0;
+      z-index: 18;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 44px;
+      padding: 0 20px 0 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .menu-toggle {
+      width: 32px;
+      height: 32px;
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      border-right: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .workspace-user {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .tab-strip {
+      display: flex;
+      align-items: flex-end;
+      min-height: 36px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .page-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 28px;
+      padding: 0 10px;
+      border: 0;
+      background: var(--blue);
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .page-tab::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .main {
+      width: min(100%, 1480px);
+      margin: 0 auto;
+      padding: 24px 24px 40px;
+    }
+
+    .page-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      color: #5b666f;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    h2 {
+      font-size: 16px;
+    }
+
+    h3 {
+      font-size: 14px;
+    }
+
+    .metrics {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .metric {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .metric strong {
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    .page-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .page-actions-left,
+    .page-actions-right,
+    .filter-actions,
+    .bulk-actions,
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 34px;
+      max-width: 100%;
+      padding: 6px 11px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      font-weight: 700;
+      line-height: 1.25;
+      white-space: nowrap;
+    }
+
+    .button:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .button.primary {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .button.primary:hover {
+      background: var(--blue-strong);
+      color: #fff;
+    }
+
+    .button.teal {
+      border-color: var(--teal);
+      background: var(--teal);
+      color: #fff;
+    }
+
+    .button.teal:hover {
+      background: #087274;
+      color: #fff;
+    }
+
+    .button.icon-only {
+      width: 34px;
+      padding: 0;
+    }
+
+    .button.quiet {
+      border-color: transparent;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .icon {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 auto;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .surface {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .filter-surface {
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .quick-grid,
+    .more-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .more-grid {
+      margin-top: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      min-height: 36px;
+      padding: 6px 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(89, 97, 207, 0.14);
+    }
+
+    .span-2 {
+      grid-column: span 2;
+    }
+
+    .date-range {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .applied-surface {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 56px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+
+    .applied-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .applied-title {
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .result-count {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 260px;
+      min-height: 28px;
+      padding: 3px 8px 3px 10px;
+      border: 1px solid #c4cef8;
+      border-radius: 999px;
+      background: #f0f2ff;
+      color: #3d47b6;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .chip span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chip button {
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: currentColor;
+      font-weight: 900;
+    }
+
+    .empty-chip {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .table-surface {
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #f8fafc;
+    }
+
+    .selected-count {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1280px;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--muted);
+      background: #f4f6f8;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: #fbfdff;
+    }
+
+    .check-col {
+      width: 48px;
+    }
+
+    .game-col {
+      width: 285px;
+    }
+
+    .vendor-col {
+      width: 118px;
+    }
+
+    .type-col {
+      width: 116px;
+    }
+
+    .status-col {
+      width: 150px;
+    }
+
+    .platform-col {
+      width: 180px;
+    }
+
+    .exposure-col {
+      width: 150px;
+    }
+
+    .time-col {
+      width: 150px;
+    }
+
+    .action-col {
+      width: 150px;
+    }
+
+    .game-info,
+    .summary {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .game-name,
+    .summary-text {
+      overflow: hidden;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 900;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .game-meta,
+    .summary-subtext,
+    .muted-line {
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .game-id-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 26px;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .game-id-text {
+      overflow: hidden;
+      min-width: 0;
+      padding: 3px 6px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface-soft);
+      color: #455151;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.35;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .copy-button {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--muted);
+    }
+
+    .copy-button.copied {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      max-width: 100%;
+      min-height: 24px;
+      padding: 3px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .tag.green {
+      border-color: #b7e1c5;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .tag.red {
+      border-color: #f1b5ad;
+      background: var(--red-soft);
+      color: #b42318;
+    }
+
+    .tag.amber {
+      border-color: #f0cf9b;
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .tag.blue {
+      border-color: #c4cef8;
+      background: #f0f2ff;
+      color: #3d47b6;
+    }
+
+    .status-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .status-dot::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+
+    .status-dot.enabled::before {
+      background: var(--green);
+    }
+
+    .status-dot.maintain::before {
+      background: var(--amber);
+    }
+
+    .status-rail {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(5px, 1fr));
+      gap: 3px;
+      width: 150px;
+      max-width: 100%;
+    }
+
+    .status-segment {
+      height: 6px;
+      border-radius: 999px;
+      background: #cdd5df;
+    }
+
+    .status-segment.enabled {
+      background: var(--green);
+    }
+
+    .status-segment.maintain {
+      background: var(--amber);
+    }
+
+    .summary-action {
+      display: inline-flex;
+      width: fit-content;
+      min-height: 24px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #4e5acb;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .summary-action:hover {
+      text-decoration: underline;
+    }
+
+    .card-list {
+      display: none;
+      gap: 10px;
+    }
+
+    .game-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      min-width: 0;
+    }
+
+    .card-title strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .card-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .card-meta-item {
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface-soft);
+    }
+
+    .card-meta-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .card-meta-item strong {
+      display: block;
+      overflow: hidden;
+      margin-top: 4px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .empty-state {
+      display: none;
+      padding: 52px 18px;
+      text-align: center;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+    }
+
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 39;
+      display: none;
+      background: rgba(23, 33, 33, 0.35);
+    }
+
+    .drawer-backdrop.is-open {
+      display: block;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 40;
+      width: min(560px, 100vw);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      box-shadow: var(--shadow);
+      transform: translateX(104%);
+      transition: transform 180ms ease;
+    }
+
+    .drawer.is-open {
+      transform: translateX(0);
+    }
+
+    .drawer-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfc;
+    }
+
+    .drawer-title {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .drawer-title strong {
+      overflow: hidden;
+      font-size: 18px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .drawer-title span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .drawer-body {
+      overflow-y: auto;
+      padding: 18px 20px 28px;
+    }
+
+    .detail-section {
+      padding-bottom: 18px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .detail-section:last-child {
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .detail-section h3 {
+      margin-bottom: 10px;
+    }
+
+    .detail-grid,
+    .platform-grid,
+    .exposure-grid,
+    .edit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .platform-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .detail-item,
+    .platform-tile {
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+    }
+
+    .detail-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .detail-item strong {
+      display: block;
+      overflow-wrap: anywhere;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+
+    .platform-name {
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .edit-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .edit-section {
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .edit-section:last-of-type {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .edit-section h3 {
+      margin-bottom: 10px;
+    }
+
+    .edit-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .edit-field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .edit-field input,
+    .edit-field select,
+    .edit-field textarea {
+      width: 100%;
+      min-height: 36px;
+      padding: 6px 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #fff;
+      outline: none;
+    }
+
+    .edit-field textarea {
+      min-height: 92px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .edit-footer {
+      position: sticky;
+      bottom: -28px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 14px;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), #fff 38%);
+    }
+
+    @media (max-width: 1180px) {
+      .quick-grid,
+      .more-grid {
+        grid-template-columns: repeat(4, minmax(140px, 1fr));
+      }
+    }
+
+    @media (max-width: 820px) {
+      .app-shell {
+        display: block;
+      }
+
+      .sidebar {
+        position: relative;
+        width: 100%;
+        min-height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .sidebar-logo {
+        font-size: 28px;
+      }
+
+      .sidebar-menu {
+        display: none;
+      }
+
+      .main {
+        padding: 16px 14px 32px;
+      }
+
+      .page-head,
+      .page-actions,
+      .filter-bar,
+      .applied-surface,
+      .table-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .metrics,
+      .page-actions-left,
+      .page-actions-right,
+      .filter-actions,
+      .bulk-actions {
+        justify-content: flex-start;
+      }
+
+      .quick-grid,
+      .more-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .span-2 {
+        grid-column: span 2;
+      }
+
+      .table-scroll {
+        display: none;
+      }
+
+      .card-list {
+        display: grid;
+        padding: 12px;
+      }
+
+      .applied-left {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 540px) {
+      h1 {
+        font-size: 20px;
+      }
+
+      .quick-grid,
+      .more-grid,
+      .detail-grid,
+      .platform-grid,
+      .exposure-grid,
+      .edit-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .span-2 {
+        grid-column: span 1;
+      }
+
+      .date-range,
+      .card-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .button.icon-only,
+      .row-actions .button {
+        width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="左側菜單">
+      <div class="sidebar-logo">SYSTEM</div>
+      <nav class="sidebar-menu">
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>會員管理</span><span>⌄</span></button>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>代理管理</span><span class="menu-badge">19</span><span>⌄</span></button>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>遊戲商管理</span><span>⌄</span></button>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>遊戲管理</span><span>⌃</span></button>
+        <div class="submenu">
+          <a class="submenu-item active" href="game-list.html">遊戲清單</a>
+          <a class="submenu-item" href="index.html">遊戲接入</a>
+          <button class="submenu-item" type="button">遊戲大廳清單</button>
+          <button class="submenu-item" type="button">遊戲大廳接入</button>
+        </div>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>內容管理</span><span>⌄</span></button>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>運營系統</span><span>⌄</span></button>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>支付系統</span><span class="menu-badge">1</span><span>⌄</span></button>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>財務系統</span><span>⌄</span></button>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>系統</span><span>⌄</span></button>
+      </nav>
+    </aside>
+
+    <div class="app-main">
+      <header class="workspace-header">
+        <button class="menu-toggle" type="button" aria-label="展開或收合菜單">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"></path><path d="M4 12h12"></path><path d="M4 18h16"></path></svg>
+        </button>
+        <div class="workspace-user">
+          <span>pl_raymond</span>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+      </header>
+      <div class="tab-strip">
+        <button class="page-tab" type="button">遊戲清單 <span aria-hidden="true">×</span></button>
+      </div>
+
+      <main class="main">
+        <div class="page-head">
+          <div>
+            <h1>遊戲清單</h1>
+          </div>
+          <div class="metrics" aria-label="摘要">
+            <div class="metric">總遊戲 <strong id="totalMetric">0</strong></div>
+            <div class="metric">啟用中 <strong id="enabledMetric">0</strong></div>
+            <div class="metric">可試玩 <strong id="demoMetric">0</strong></div>
+          </div>
+        </div>
+
+        <div class="page-actions">
+          <div class="page-actions-left">
+            <button class="button" type="button" id="refreshButton">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2"></path><path d="M3 12A9 9 0 0 1 18.5 5.8"></path><path d="M18 2v4h4"></path><path d="M6 22v-4H2"></path></svg>
+              刷新
+            </button>
+            <button class="button" type="button" id="toggleFilters" aria-expanded="false" aria-controls="filterPanel">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18"></path><path d="M6 12h12"></path><path d="M10 19h4"></path></svg>
+              篩選
+            </button>
+          </div>
+          <div class="page-actions-right">
+            <button class="button" type="button">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+              批量上圖
+            </button>
+          </div>
+        </div>
+
+        <section class="surface filter-surface" id="filterPanel" aria-label="篩選" hidden>
+          <form id="filterForm">
+            <div class="filter-bar">
+              <h2>快速篩選</h2>
+              <div class="filter-actions">
+                <button class="button" type="button" id="moreToggle" aria-expanded="false" aria-controls="moreFilters">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18"></path><path d="M6 12h12"></path><path d="M10 19h4"></path></svg>
+                  更多篩選
+                </button>
+                <button class="button primary" type="submit">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                  篩選
+                </button>
+                <button class="button" type="button" id="resetFilters">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg>
+                  重置
+                </button>
+              </div>
+            </div>
+
+            <div class="quick-grid">
+              <div class="field span-2">
+                <label for="keyword">關鍵字</label>
+                <input id="keyword" name="keyword" type="search" placeholder="ID / 編碼 / 名稱 / 簡稱">
+              </div>
+              <div class="field">
+                <label for="vendor">所屬遊戲商</label>
+                <select id="vendor" name="vendor"><option value="">全部</option></select>
+              </div>
+              <div class="field">
+                <label for="type">種類</label>
+                <select id="type" name="type"><option value="">全部</option></select>
+              </div>
+              <div class="field">
+                <label for="aggregator">當前集成商</label>
+                <select id="aggregator" name="aggregator"><option value="">全部</option></select>
+              </div>
+              <div class="field">
+                <label for="gameStatus">遊戲商狀態</label>
+                <select id="gameStatus" name="gameStatus"><option value="">全部</option></select>
+              </div>
+              <div class="field">
+                <label for="demo">是否試玩</label>
+                <select id="demo" name="demo">
+                  <option value="">全部</option>
+                  <option value="true">有</option>
+                  <option value="false">無</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="siteStatus">站點狀態</label>
+                <select id="siteStatus" name="siteStatus"><option value="">全部</option></select>
+              </div>
+              <div class="field">
+                <label for="maintenance">維護狀態</label>
+                <select id="maintenance" name="maintenance"><option value="">全部</option></select>
+              </div>
+            </div>
+
+            <div class="more-grid" id="moreFilters" hidden>
+              <div class="field"><label for="opsStatus">ops狀態</label><select id="opsStatus" name="opsStatus"><option value="">全部</option><option value="enabled">啟用</option><option value="disabled">停用</option><option value="maintain">維護</option></select></div>
+              <div class="field"><label for="zfStatus">zf狀態</label><select id="zfStatus" name="zfStatus"><option value="">全部</option><option value="enabled">啟用</option><option value="disabled">停用</option><option value="maintain">維護</option></select></div>
+              <div class="field"><label for="directStatus">direct狀態</label><select id="directStatus" name="directStatus"><option value="">全部</option><option value="enabled">啟用</option><option value="disabled">停用</option><option value="maintain">維護</option></select></div>
+              <div class="field"><label for="hot">人氣</label><select id="hot" name="hot"><option value="">全部</option><option value="true">有</option><option value="false">無</option></select></div>
+              <div class="field"><label for="latest">最新</label><select id="latest" name="latest"><option value="">全部</option><option value="true">有</option><option value="false">無</option></select></div>
+              <div class="field"><label for="bonus">購入BONUS</label><select id="bonus" name="bonus"><option value="">全部</option><option value="true">有</option><option value="false">無</option></select></div>
+              <div class="field"><label for="multiplier10k">1萬倍</label><select id="multiplier10k" name="multiplier10k"><option value="">全部</option><option value="true">有</option><option value="false">無</option></select></div>
+              <div class="field"><label for="jackpot">jackpot</label><select id="jackpot" name="jackpot"><option value="">全部</option><option value="true">有</option><option value="false">無</option></select></div>
+              <div class="field span-2">
+                <label>更新時間區間</label>
+                <div class="date-range">
+                  <input id="updatedFrom" name="updatedFrom" type="date" aria-label="更新時間開始">
+                  <input id="updatedTo" name="updatedTo" type="date" aria-label="更新時間結束">
+                </div>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <section class="surface applied-surface" aria-label="已套用篩選條件">
+          <div class="applied-left">
+            <div class="applied-title">已套用篩選條件（<span id="filterCount">0</span>）</div>
+            <div class="result-count">共 <strong id="resultCount">0</strong> 筆結果</div>
+            <div class="chips" id="activeChips"></div>
+          </div>
+          <button class="button quiet" type="button" id="clearApplied">清除全部</button>
+        </section>
+
+        <section class="surface table-surface" aria-label="遊戲列表">
+          <div class="table-toolbar">
+            <div class="bulk-actions">
+              <span class="selected-count">已選 <strong id="selectedCount">0</strong></span>
+              <button class="button" type="button" disabled>批次啟用</button>
+              <button class="button" type="button" disabled>批次停用</button>
+            </div>
+            <div class="bulk-actions">
+              <button class="button" type="button" id="sortUpdated">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 15 5 5 5-5"></path><path d="M12 4v16"></path></svg>
+                更新時間
+              </button>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th class="check-col"><input id="selectAll" type="checkbox" aria-label="全選"></th>
+                  <th class="game-col">遊戲資訊</th>
+                  <th class="vendor-col">遊戲商</th>
+                  <th class="type-col">類型 / 集成商</th>
+                  <th class="status-col">狀態摘要</th>
+                  <th class="platform-col">平台狀態</th>
+                  <th class="exposure-col">曝光設定</th>
+                  <th class="time-col">時間</th>
+                  <th class="action-col">操作</th>
+                </tr>
+              </thead>
+              <tbody id="gameRows"></tbody>
+            </table>
+          </div>
+          <div class="card-list" id="cardList"></div>
+          <div class="empty-state" id="emptyState">
+            <strong>沒有符合條件的遊戲</strong>
+            <span>調整篩選條件後會重新整理列表。</span>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="detailDrawer" aria-label="遊戲詳情" aria-hidden="true">
+    <div class="drawer-head">
+      <div class="drawer-title">
+        <strong id="drawerName">遊戲詳情</strong>
+        <span id="drawerSub">-</span>
+      </div>
+      <button class="button icon-only" type="button" id="closeDrawer" aria-label="關閉詳情">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+  </aside>
+
+  <script>
+    const platformKeys = ["ops", "zf", "direct", "kuma", "omg", "9game", "jili", "pg", "fc", "rich88", "ae", "awc"];
+    const platformLabels = Object.fromEntries(platformKeys.map((key) => [key, key]));
+    const statusLabels = { enabled: "啟用", disabled: "停用", maintain: "維護" };
+    const statusTagClass = { enabled: "green", disabled: "red", maintain: "amber" };
+    const booleanLabels = { true: "有", false: "無" };
+    const filterMeta = {
+      keyword: "關鍵字",
+      vendor: "所屬遊戲商",
+      type: "種類",
+      aggregator: "當前集成商",
+      gameStatus: "遊戲商狀態",
+      demo: "是否試玩",
+      siteStatus: "站點狀態",
+      maintenance: "維護狀態",
+      opsStatus: "ops狀態",
+      zfStatus: "zf狀態",
+      directStatus: "direct狀態",
+      hot: "人氣",
+      latest: "最新",
+      bonus: "購入BONUS",
+      multiplier10k: "1萬倍",
+      jackpot: "jackpot",
+      updatedFrom: "更新時間起",
+      updatedTo: "更新時間迄"
+    };
+
+    const games = [
+      {
+        id: "131314152352361513412412eqwasdae",
+        vendor: "Viva",
+        code: "220",
+        name: "炸金花",
+        shortName: "vp_gflower",
+        type: "真人遊戲",
+        aggregator: "direct",
+        gameStatus: "啟用",
+        demo: false,
+        siteStatus: "啟用",
+        maintenance: "停用",
+        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
+        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: true, latestSort: 1000, bonus: false, bonusSort: 1, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
+        note: "",
+        createdAt: "2024-07-11 17:22:26",
+        updatedAt: "2026-05-05 17:07:32"
+      },
+      {
+        id: "0002a25f7e394606aa1cb4fa447f1ca1",
+        vendor: "Viva",
+        code: "510",
+        name: "激光炮捕魚",
+        shortName: "vp_ttby",
+        type: "電子遊戲",
+        aggregator: "direct",
+        gameStatus: "啟用",
+        demo: true,
+        siteStatus: "停用",
+        maintenance: "停用",
+        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
+        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: true, latestSort: 1000, bonus: false, bonusSort: 2, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
+        note: "",
+        createdAt: "2025-09-05 09:27:02",
+        updatedAt: "2025-09-05 09:27:02"
+      },
+      {
+        id: "000cb49f2dae493689d602191007b497",
+        vendor: "Viva",
+        code: "600",
+        name: "21點",
+        shortName: "vp_black",
+        type: "電子遊戲",
+        aggregator: "direct",
+        gameStatus: "啟用",
+        demo: true,
+        siteStatus: "啟用",
+        maintenance: "停用",
+        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
+        exposure: { siteSort: 8, hot: false, hotSort: 1000, latest: true, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
+        note: "",
+        createdAt: "2026-05-07 12:57:16",
+        updatedAt: "2026-05-07 12:57:16"
+      },
+      {
+        id: "6197b597-d530-11ee-9fd6-0242ac130002",
+        vendor: "Viva",
+        code: "610",
+        name: "斗地主",
+        shortName: "vp_ddz",
+        type: "電子遊戲",
+        aggregator: "direct",
+        gameStatus: "啟用",
+        demo: false,
+        siteStatus: "啟用",
+        maintenance: "停用",
+        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
+        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: false, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
+        note: "",
+        createdAt: "2024-07-11 17:22:26",
+        updatedAt: "2025-07-09 14:45:42"
+      },
+      {
+        id: "00219dd5709b4d84a510185b483da08f",
+        vendor: "Viva",
+        code: "620",
+        name: "德州撲克",
+        shortName: "vp_holdem",
+        type: "電子遊戲",
+        aggregator: "direct",
+        gameStatus: "啟用",
+        demo: true,
+        siteStatus: "啟用",
+        maintenance: "停用",
+        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
+        exposure: { siteSort: 23, hot: false, hotSort: 1000, latest: true, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
+        note: "",
+        createdAt: "2026-05-07 12:57:16",
+        updatedAt: "2026-05-07 12:57:16"
+      },
+      {
+        id: "003b0b1e5fc94b679f4831c27943d083",
+        vendor: "Viva",
+        code: "630",
+        name: "十三水",
+        shortName: "vp_sss",
+        type: "電子遊戲",
+        aggregator: "direct",
+        gameStatus: "啟用",
+        demo: true,
+        siteStatus: "停用",
+        maintenance: "停用",
+        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
+        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: false, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
+        note: "",
+        createdAt: "2025-09-04 14:34:52",
+        updatedAt: "2025-09-04 14:34:52"
+      },
+      {
+        id: "65d25dc7-d530-11ee-9fd6-0242ac130002",
+        vendor: "Viva",
+        code: "640",
+        name: "跑得快",
+        shortName: "vp_pdk",
+        type: "電子遊戲",
+        aggregator: "direct",
+        gameStatus: "啟用",
+        demo: false,
+        siteStatus: "啟用",
+        maintenance: "停用",
+        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
+        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: false, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
+        note: "",
+        createdAt: "2024-07-11 17:22:26",
+        updatedAt: "2025-12-01 18:51:16"
+      },
+      {
+        id: "0040de4dd859477e957d4597d9b853c6",
+        vendor: "Viva",
+        code: "720",
+        name: "二八杠",
+        shortName: "vp_erba",
+        type: "電子遊戲",
+        aggregator: "direct",
+        gameStatus: "啟用",
+        demo: true,
+        siteStatus: "停用",
+        maintenance: "停用",
+        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
+        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: false, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
+        note: "",
+        createdAt: "2025-07-09 14:45:50",
+        updatedAt: "2025-07-09 14:45:50"
+      },
+      {
+        id: "00f504bc10aa4e9eaf9bfc4fd1eb21e7",
+        vendor: "Viva",
+        code: "730",
+        name: "搶庄牌九",
+        shortName: "vp_qzpj",
+        type: "電子遊戲",
+        aggregator: "direct",
+        gameStatus: "啟用",
+        demo: true,
+        siteStatus: "停用",
+        maintenance: "停用",
+        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
+        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: false, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
+        note: "",
+        createdAt: "2026-04-28 12:04:25",
+        updatedAt: "2026-04-28 12:04:25"
+      },
+      {
+        id: "010c2d14e5bb4788a24d9628d4de1226",
+        vendor: "Viva",
+        code: "740",
+        name: "百人牛牛",
+        shortName: "vp_bairennn",
+        type: "電子遊戲",
+        aggregator: "direct",
+        gameStatus: "啟用",
+        demo: true,
+        siteStatus: "停用",
+        maintenance: "停用",
+        platforms: { ops: "disabled", zf: "disabled", direct: "enabled", kuma: "disabled", omg: "disabled", "9game": "disabled" },
+        exposure: { siteSort: 1000, hot: false, hotSort: 1000, latest: false, latestSort: 1000, bonus: false, bonusSort: 1000, multiplier10k: false, multiplierSort: 1000, jackpot: false, jpSort: 1000 },
+        note: "",
+        createdAt: "2026-04-28 12:04:25",
+        updatedAt: "2026-04-28 12:04:25"
+      }
+    ];
+
+    let filteredGames = [...games];
+    let selectedIds = new Set();
+    let sortDescending = true;
+
+    const form = document.getElementById("filterForm");
+    const rowsEl = document.getElementById("gameRows");
+    const cardListEl = document.getElementById("cardList");
+    const chipsEl = document.getElementById("activeChips");
+    const resultCountEl = document.getElementById("resultCount");
+    const filterCountEl = document.getElementById("filterCount");
+    const selectAllEl = document.getElementById("selectAll");
+    const selectedCountEl = document.getElementById("selectedCount");
+    const emptyStateEl = document.getElementById("emptyState");
+    const drawerEl = document.getElementById("detailDrawer");
+    const drawerBackdropEl = document.getElementById("drawerBackdrop");
+    const drawerNameEl = document.getElementById("drawerName");
+    const drawerSubEl = document.getElementById("drawerSub");
+    const drawerBodyEl = document.getElementById("drawerBody");
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getUnique(field) {
+      return [...new Set(games.map((game) => game[field]))].sort((a, b) => a.localeCompare(b, "zh-Hant"));
+    }
+
+    function fillOptions(id, values) {
+      const select = document.getElementById(id);
+      values.forEach((value) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+      });
+    }
+
+    function initializeOptions() {
+      fillOptions("vendor", getUnique("vendor"));
+      fillOptions("type", getUnique("type"));
+      fillOptions("aggregator", getUnique("aggregator"));
+      fillOptions("gameStatus", getUnique("gameStatus"));
+      fillOptions("siteStatus", getUnique("siteStatus"));
+      fillOptions("maintenance", getUnique("maintenance"));
+    }
+
+    function getFilters() {
+      return Object.fromEntries(new FormData(form).entries());
+    }
+
+    function getPlatformStatus(game, platform) {
+      return game.platforms?.[platform] || "disabled";
+    }
+
+    function getPlatformEntries(game) {
+      return platformKeys.map((platform) => ({
+        key: platform,
+        label: platformLabels[platform] || platform,
+        status: getPlatformStatus(game, platform)
+      }));
+    }
+
+    function getPlatformStats(game) {
+      const entries = getPlatformEntries(game);
+      return {
+        total: entries.length,
+        enabled: entries.filter((entry) => entry.status === "enabled").length,
+        maintain: entries.filter((entry) => entry.status === "maintain").length,
+        disabled: entries.filter((entry) => entry.status === "disabled").length
+      };
+    }
+
+    function getPlatformSummary(game) {
+      const stats = getPlatformStats(game);
+      return stats.enabled === 0 ? "全部停用" : `已啟用 ${stats.enabled} / ${stats.total}`;
+    }
+
+    function getPlatformSubSummary(game) {
+      const stats = getPlatformStats(game);
+      return `維護 ${stats.maintain}｜停用 ${stats.disabled}`;
+    }
+
+    function getStatusRail(game) {
+      return `<div class="status-rail" aria-label="${escapeHtml(getPlatformSummary(game))}">
+        ${getPlatformEntries(game).map((entry) => `<span class="status-segment ${escapeHtml(entry.status)}" title="${escapeHtml(entry.label)}：${escapeHtml(statusLabels[entry.status])}"></span>`).join("")}
+      </div>`;
+    }
+
+    function getExposureCustomCount(exposure) {
+      return [
+        exposure.siteSort !== 1000,
+        exposure.hot,
+        exposure.hotSort !== 1000,
+        exposure.latest,
+        exposure.latestSort !== 1000,
+        exposure.bonus,
+        exposure.bonusSort !== 1000 && exposure.bonusSort !== 1 && exposure.bonusSort !== 2,
+        exposure.multiplier10k,
+        exposure.multiplierSort !== 1000,
+        exposure.jackpot,
+        exposure.jpSort !== 1000
+      ].filter(Boolean).length;
+    }
+
+    function getExposureSummary(game) {
+      const count = getExposureCustomCount(game.exposure);
+      return count === 0 ? "預設" : `已自訂 ${count} 項`;
+    }
+
+    function matchesFilter(game, filters) {
+      const keyword = filters.keyword.trim().toLowerCase();
+      if (keyword) {
+        const haystack = [game.id, game.code, game.name, game.shortName, game.vendor, game.aggregator].join(" ").toLowerCase();
+        if (!haystack.includes(keyword)) return false;
+      }
+
+      const exactFields = ["vendor", "type", "aggregator", "gameStatus", "siteStatus", "maintenance"];
+      for (const field of exactFields) {
+        if (filters[field] && game[field] !== filters[field]) return false;
+      }
+
+      if (filters.demo && String(game.demo) !== filters.demo) return false;
+
+      const platformMap = { opsStatus: "ops", zfStatus: "zf", directStatus: "direct" };
+      for (const [filterName, platform] of Object.entries(platformMap)) {
+        if (filters[filterName] && getPlatformStatus(game, platform) !== filters[filterName]) return false;
+      }
+
+      const exposureFilters = ["hot", "latest", "bonus", "multiplier10k", "jackpot"];
+      for (const key of exposureFilters) {
+        if (filters[key] && String(game.exposure[key]) !== filters[key]) return false;
+      }
+
+      const updatedDate = game.updatedAt.slice(0, 10);
+      if (filters.updatedFrom && updatedDate < filters.updatedFrom) return false;
+      if (filters.updatedTo && updatedDate > filters.updatedTo) return false;
+
+      return true;
+    }
+
+    function getStatusDot(status) {
+      const className = status === "啟用" ? "enabled" : status === "維護" || status === "維護中" ? "maintain" : "";
+      return `<span class="status-dot ${className}">${escapeHtml(status)}</span>`;
+    }
+
+    function getBooleanTag(value) {
+      return value ? `<span class="tag green">有</span>` : `<span class="tag red">無</span>`;
+    }
+
+    function renderRows() {
+      rowsEl.innerHTML = filteredGames.map((game) => {
+        const checked = selectedIds.has(game.id) ? "checked" : "";
+        return `<tr>
+          <td class="check-col"><input type="checkbox" class="row-check" data-id="${escapeHtml(game.id)}" aria-label="選取 ${escapeHtml(game.name)}" ${checked}></td>
+          <td class="game-col">${gameInfoMarkup(game)}</td>
+          <td class="vendor-col"><span class="tag blue">${escapeHtml(game.vendor)}</span></td>
+          <td class="type-col">
+            <div class="summary">
+              <span class="summary-text">${escapeHtml(game.type)}</span>
+              <span class="summary-subtext">${escapeHtml(game.aggregator)}</span>
+            </div>
+          </td>
+          <td class="status-col">
+            <div class="summary">
+              ${getStatusDot(game.gameStatus)}
+              <span class="summary-subtext">試玩：${game.demo ? "有" : "無"}｜站點：${escapeHtml(game.siteStatus)}</span>
+              <span class="summary-subtext">維護：${escapeHtml(game.maintenance)}</span>
+            </div>
+          </td>
+          <td class="platform-col">
+            <div class="summary">
+              <span class="summary-text">${escapeHtml(getPlatformSummary(game))}</span>
+              <span class="summary-subtext">${escapeHtml(getPlatformSubSummary(game))}</span>
+              ${getStatusRail(game)}
+              <button class="summary-action" type="button" data-open-platforms="${escapeHtml(game.id)}">查看全部</button>
+            </div>
+          </td>
+          <td class="exposure-col">
+            <div class="summary">
+              <span class="summary-text">${escapeHtml(getExposureSummary(game))}</span>
+              <span class="summary-subtext">站點排序 ${escapeHtml(game.exposure.siteSort)}</span>
+              <button class="summary-action" type="button" data-open-exposure="${escapeHtml(game.id)}">查看設定</button>
+            </div>
+          </td>
+          <td class="time-col">
+            <div class="summary">
+              <span class="summary-text">${escapeHtml(game.updatedAt.slice(0, 10))}</span>
+              <span class="summary-subtext">${escapeHtml(game.updatedAt.slice(11))}</span>
+            </div>
+          </td>
+          <td class="action-col">
+            <div class="row-actions">
+              <button class="button" type="button" data-open-detail="${escapeHtml(game.id)}">查看</button>
+              <button class="button" type="button" data-open-edit="${escapeHtml(game.id)}">編輯</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join("");
+
+      cardListEl.innerHTML = filteredGames.map((game) => `<article class="game-card">
+        <div class="card-head">
+          <div class="card-title">
+            <strong>${escapeHtml(game.name)} <span class="muted-line">${escapeHtml(game.shortName)}</span></strong>
+            <span class="game-meta">${escapeHtml(game.vendor)}｜${escapeHtml(game.code)}</span>
+          </div>
+          ${getStatusDot(game.gameStatus)}
+        </div>
+        ${gameIdMarkup(game)}
+        <div class="card-meta">
+          <div class="card-meta-item"><span>種類 / 集成商</span><strong>${escapeHtml(game.type)} / ${escapeHtml(game.aggregator)}</strong></div>
+          <div class="card-meta-item"><span>平台</span><strong>${escapeHtml(getPlatformSummary(game))}</strong></div>
+          <div class="card-meta-item"><span>曝光</span><strong>${escapeHtml(getExposureSummary(game))}</strong></div>
+          <div class="card-meta-item"><span>更新時間</span><strong>${escapeHtml(game.updatedAt.slice(0, 10))}</strong></div>
+        </div>
+        <div class="row-actions">
+          <button class="button" type="button" data-open-detail="${escapeHtml(game.id)}">查看</button>
+          <button class="button" type="button" data-open-edit="${escapeHtml(game.id)}">編輯</button>
+          <button class="button" type="button" data-open-platforms="${escapeHtml(game.id)}">平台</button>
+        </div>
+      </article>`).join("");
+
+      emptyStateEl.style.display = filteredGames.length ? "none" : "block";
+      updateSelectionState();
+    }
+
+    function gameInfoMarkup(game) {
+      return `<div class="game-info">
+        <div class="game-name">${escapeHtml(game.name)} <span class="muted-line">${escapeHtml(game.shortName)}</span></div>
+        ${gameIdMarkup(game)}
+        <div class="game-meta">編碼 ${escapeHtml(game.code)}</div>
+      </div>`;
+    }
+
+    function gameIdMarkup(game) {
+      return `<div class="game-id-row">
+        <span class="game-id-text" title="${escapeHtml(game.id)}">${escapeHtml(game.id)}</span>
+        <button class="copy-button" type="button" data-copy-id="${escapeHtml(game.id)}" aria-label="複製 ${escapeHtml(game.id)}">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+      </div>`;
+    }
+
+    function getChipValue(key, value) {
+      if (["demo", "hot", "latest", "bonus", "multiplier10k", "jackpot"].includes(key)) return booleanLabels[value];
+      if (key.endsWith("Status") && ["enabled", "disabled", "maintain"].includes(value)) return statusLabels[value];
+      return value;
+    }
+
+    function renderChips(filters) {
+      const activeFilters = Object.entries(filters)
+        .filter(([, value]) => value !== "")
+        .map(([key, value]) => ({ key, label: filterMeta[key], value: getChipValue(key, value) }));
+      filterCountEl.textContent = activeFilters.length;
+      chipsEl.innerHTML = activeFilters.length
+        ? activeFilters.map((filter) => `<span class="chip"><span>${escapeHtml(filter.label)}：${escapeHtml(filter.value)}</span><button type="button" data-remove-filter="${escapeHtml(filter.key)}" aria-label="移除 ${escapeHtml(filter.label)}">×</button></span>`).join("")
+        : `<span class="empty-chip">無套用條件</span>`;
+    }
+
+    function renderMetrics() {
+      document.getElementById("totalMetric").textContent = games.length;
+      document.getElementById("enabledMetric").textContent = games.filter((game) => game.siteStatus === "啟用").length;
+      document.getElementById("demoMetric").textContent = games.filter((game) => game.demo).length;
+    }
+
+    function applyFilters() {
+      const filters = getFilters();
+      filteredGames = games
+        .filter((game) => matchesFilter(game, filters))
+        .sort((a, b) => a.updatedAt.localeCompare(b.updatedAt) * (sortDescending ? -1 : 1));
+      selectedIds = new Set([...selectedIds].filter((id) => filteredGames.some((game) => game.id === id)));
+      resultCountEl.textContent = filteredGames.length;
+      renderChips(filters);
+      renderRows();
+    }
+
+    function resetFilters() {
+      form.reset();
+      applyFilters();
+    }
+
+    function updateSelectionState() {
+      selectedCountEl.textContent = selectedIds.size;
+      const visibleIds = filteredGames.map((game) => game.id);
+      const visibleSelected = visibleIds.filter((id) => selectedIds.has(id)).length;
+      selectAllEl.checked = visibleIds.length > 0 && visibleSelected === visibleIds.length;
+      selectAllEl.indeterminate = visibleSelected > 0 && visibleSelected < visibleIds.length;
+    }
+
+    function openDrawer(gameId, mode = "detail") {
+      const game = games.find((item) => item.id === gameId);
+      if (!game) return;
+      drawerNameEl.textContent = mode === "platforms" ? `平台狀態：${game.name}` : mode === "exposure" ? `曝光設定：${game.name}` : mode === "edit" ? `編輯：${game.name}` : game.name;
+      drawerSubEl.textContent = `${game.id}｜${game.vendor}｜${game.code}`;
+      drawerBodyEl.innerHTML = mode === "platforms"
+        ? renderPlatformDetail(game)
+        : mode === "exposure"
+          ? renderExposureDetail(game)
+          : mode === "edit"
+            ? renderEditForm(game)
+            : renderGameDetail(game);
+      drawerEl.classList.add("is-open");
+      drawerBackdropEl.classList.add("is-open");
+      drawerEl.setAttribute("aria-hidden", "false");
+    }
+
+    function closeDrawer() {
+      drawerEl.classList.remove("is-open");
+      drawerBackdropEl.classList.remove("is-open");
+      drawerEl.setAttribute("aria-hidden", "true");
+    }
+
+    function detailItem(label, value) {
+      return `<div class="detail-item"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`;
+    }
+
+    function platformTile(entry) {
+      return `<div class="platform-tile"><div class="platform-name">${escapeHtml(entry.label)}</div><span class="tag ${escapeHtml(statusTagClass[entry.status])}">${escapeHtml(statusLabels[entry.status])}</span></div>`;
+    }
+
+    function renderGameDetail(game) {
+      return `
+        <section class="detail-section"><h3>基本資料</h3><div class="detail-grid">
+          ${detailItem("完整 ID", game.id)}
+          ${detailItem("遊戲編碼", game.code)}
+          ${detailItem("遊戲名稱", game.name)}
+          ${detailItem("遊戲簡稱", game.shortName)}
+          ${detailItem("所屬遊戲商", game.vendor)}
+          ${detailItem("當前集成商", game.aggregator)}
+          ${detailItem("種類", game.type)}
+          ${detailItem("備註", game.note || "無")}
+        </div></section>
+        <section class="detail-section"><h3>狀態</h3><div class="detail-grid">
+          ${detailItem("遊戲商狀態", game.gameStatus)}
+          ${detailItem("是否試玩", game.demo ? "有" : "無")}
+          ${detailItem("站點狀態", game.siteStatus)}
+          ${detailItem("維護狀態", game.maintenance)}
+        </div></section>
+        ${renderPlatformDetail(game)}
+        ${renderExposureDetail(game)}
+        <section class="detail-section"><h3>時間</h3><div class="detail-grid">
+          ${detailItem("建立時間", game.createdAt)}
+          ${detailItem("更新時間", game.updatedAt)}
+        </div></section>`;
+    }
+
+    function renderPlatformDetail(game) {
+      const stats = getPlatformStats(game);
+      return `<section class="detail-section"><h3>平台摘要</h3><div class="detail-grid">
+          ${detailItem("平台總數", stats.total)}
+          ${detailItem("已啟用", stats.enabled)}
+          ${detailItem("維護中", stats.maintain)}
+          ${detailItem("停用", stats.disabled)}
+        </div></section>
+        <section class="detail-section"><h3>完整平台狀態</h3><div class="platform-grid">
+          ${getPlatformEntries(game).map(platformTile).join("")}
+        </div></section>`;
+    }
+
+    function renderExposureDetail(game) {
+      const exposure = game.exposure;
+      return `<section class="detail-section"><h3>曝光與排序</h3><div class="exposure-grid">
+        ${detailItem("站點遊戲排序", exposure.siteSort)}
+        ${detailItem("人氣", exposure.hot ? "有" : "無")}
+        ${detailItem("人氣遊戲排序", exposure.hotSort)}
+        ${detailItem("最新", exposure.latest ? "有" : "無")}
+        ${detailItem("最新排序", exposure.latestSort)}
+        ${detailItem("購入BONUS", exposure.bonus ? "有" : "無")}
+        ${detailItem("購入排序", exposure.bonusSort)}
+        ${detailItem("1萬倍", exposure.multiplier10k ? "有" : "無")}
+        ${detailItem("1萬倍排序", exposure.multiplierSort)}
+        ${detailItem("jackpot", exposure.jackpot ? "有" : "無")}
+        ${detailItem("JP排序", exposure.jpSort)}
+      </div></section>`;
+    }
+
+    function renderEditForm(game) {
+      return `<form class="edit-form" id="editGameForm" data-game-id="${escapeHtml(game.id)}">
+        <section class="edit-section"><h3>基本資料</h3><div class="edit-grid">
+          ${textField("遊戲名稱", "name", game.name)}
+          ${textField("遊戲簡稱", "shortName", game.shortName)}
+          ${textField("遊戲編碼", "code", game.code)}
+          ${selectField("種類", "type", getUnique("type"), game.type)}
+          ${selectField("當前集成商", "aggregator", getUnique("aggregator"), game.aggregator)}
+          ${selectField("站點狀態", "siteStatus", getUnique("siteStatus"), game.siteStatus)}
+          ${selectField("維護狀態", "maintenance", getUnique("maintenance"), game.maintenance)}
+          ${selectField("遊戲商狀態", "gameStatus", getUnique("gameStatus"), game.gameStatus)}
+        </div></section>
+        <section class="edit-section"><h3>平台狀態</h3><div class="edit-grid">
+          ${platformKeys.map((platform) => selectField(platformLabels[platform], `platform.${platform}`, Object.keys(statusLabels), getPlatformStatus(game, platform), statusLabels)).join("")}
+        </div></section>
+        <section class="edit-section"><h3>備註</h3><div class="edit-field"><label for="edit-note">備註</label><textarea id="edit-note" name="note">${escapeHtml(game.note)}</textarea></div></section>
+        <div class="edit-footer"><button class="button" type="button" data-cancel-edit="${escapeHtml(game.id)}">取消</button><button class="button primary" type="submit">儲存</button></div>
+      </form>`;
+    }
+
+    function textField(label, name, value) {
+      return `<div class="edit-field"><label for="edit-${escapeHtml(name)}">${escapeHtml(label)}</label><input id="edit-${escapeHtml(name)}" name="${escapeHtml(name)}" value="${escapeHtml(value)}"></div>`;
+    }
+
+    function selectField(label, name, values, current, labels = {}) {
+      const id = `edit-${name.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+      return `<div class="edit-field"><label for="${escapeHtml(id)}">${escapeHtml(label)}</label><select id="${escapeHtml(id)}" name="${escapeHtml(name)}">${values.map((value) => `<option value="${escapeHtml(value)}" ${value === current ? "selected" : ""}>${escapeHtml(labels[value] || value)}</option>`).join("")}</select></div>`;
+    }
+
+    function saveEditedGame(editForm) {
+      const game = games.find((item) => item.id === editForm.dataset.gameId);
+      if (!game) return;
+      game.name = editForm.elements.name.value.trim();
+      game.shortName = editForm.elements.shortName.value.trim();
+      game.code = editForm.elements.code.value.trim();
+      game.type = editForm.elements.type.value;
+      game.aggregator = editForm.elements.aggregator.value;
+      game.siteStatus = editForm.elements.siteStatus.value;
+      game.maintenance = editForm.elements.maintenance.value;
+      game.gameStatus = editForm.elements.gameStatus.value;
+      game.note = editForm.elements.note.value.trim();
+      platformKeys.forEach((platform) => {
+        game.platforms[platform] = editForm.elements[`platform.${platform}`].value;
+      });
+      game.updatedAt = getCurrentTimestamp();
+      renderMetrics();
+      applyFilters();
+      openDrawer(game.id);
+    }
+
+    function getCurrentTimestamp() {
+      const now = new Date();
+      const pad = (value) => String(value).padStart(2, "0");
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    }
+
+    async function copyGameId(button) {
+      const value = button.dataset.copyId;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(value);
+        } else {
+          const helper = document.createElement("textarea");
+          helper.value = value;
+          helper.setAttribute("readonly", "");
+          helper.style.position = "fixed";
+          helper.style.opacity = "0";
+          document.body.appendChild(helper);
+          helper.select();
+          document.execCommand("copy");
+          helper.remove();
+        }
+        button.classList.add("copied");
+        button.setAttribute("aria-label", "已複製 Game ID");
+        setTimeout(() => {
+          button.classList.remove("copied");
+          button.setAttribute("aria-label", `複製 ${value}`);
+        }, 1200);
+      } catch (error) {
+        button.setAttribute("aria-label", "複製失敗");
+      }
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      applyFilters();
+    });
+
+    document.getElementById("toggleFilters").addEventListener("click", (event) => {
+      const panel = document.getElementById("filterPanel");
+      panel.hidden = !panel.hidden;
+      event.currentTarget.setAttribute("aria-expanded", String(!panel.hidden));
+    });
+
+    document.getElementById("moreToggle").addEventListener("click", (event) => {
+      const panel = document.getElementById("moreFilters");
+      panel.hidden = !panel.hidden;
+      event.currentTarget.setAttribute("aria-expanded", String(!panel.hidden));
+    });
+
+    document.getElementById("resetFilters").addEventListener("click", resetFilters);
+    document.getElementById("clearApplied").addEventListener("click", resetFilters);
+    document.getElementById("refreshButton").addEventListener("click", applyFilters);
+    document.getElementById("sortUpdated").addEventListener("click", () => {
+      sortDescending = !sortDescending;
+      applyFilters();
+    });
+
+    chipsEl.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-remove-filter]");
+      if (!button) return;
+      const control = form.elements[button.dataset.removeFilter];
+      if (control) {
+        control.value = "";
+        applyFilters();
+      }
+    });
+
+    document.body.addEventListener("click", (event) => {
+      const copyButton = event.target.closest("[data-copy-id]");
+      if (copyButton) {
+        copyGameId(copyButton);
+        return;
+      }
+      const detailButton = event.target.closest("[data-open-detail]");
+      if (detailButton) {
+        openDrawer(detailButton.dataset.openDetail);
+        return;
+      }
+      const editButton = event.target.closest("[data-open-edit]");
+      if (editButton) {
+        openDrawer(editButton.dataset.openEdit, "edit");
+        return;
+      }
+      const platformButton = event.target.closest("[data-open-platforms]");
+      if (platformButton) {
+        openDrawer(platformButton.dataset.openPlatforms, "platforms");
+        return;
+      }
+      const exposureButton = event.target.closest("[data-open-exposure]");
+      if (exposureButton) {
+        openDrawer(exposureButton.dataset.openExposure, "exposure");
+      }
+    });
+
+    document.body.addEventListener("change", (event) => {
+      const checkbox = event.target.closest(".row-check");
+      if (!checkbox) return;
+      if (checkbox.checked) {
+        selectedIds.add(checkbox.dataset.id);
+      } else {
+        selectedIds.delete(checkbox.dataset.id);
+      }
+      updateSelectionState();
+    });
+
+    selectAllEl.addEventListener("change", () => {
+      const visibleIds = filteredGames.map((game) => game.id);
+      if (selectAllEl.checked) {
+        visibleIds.forEach((id) => selectedIds.add(id));
+      } else {
+        visibleIds.forEach((id) => selectedIds.delete(id));
+      }
+      renderRows();
+    });
+
+    drawerBodyEl.addEventListener("click", (event) => {
+      const cancelButton = event.target.closest("[data-cancel-edit]");
+      if (cancelButton) openDrawer(cancelButton.dataset.cancelEdit);
+    });
+
+    drawerBodyEl.addEventListener("submit", (event) => {
+      if (event.target.id !== "editGameForm") return;
+      event.preventDefault();
+      saveEditedGame(event.target);
+    });
+
+    document.getElementById("closeDrawer").addEventListener("click", closeDrawer);
+    drawerBackdropEl.addEventListener("click", closeDrawer);
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeDrawer();
+    });
+
+    initializeOptions();
+    renderMetrics();
+    applyFilters();
+  </script>
+</body>
+</html>
