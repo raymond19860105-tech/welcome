@@ -4,6 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>遊戲接入管理</title>
+  <script>
+    (() => {
+      const page = location.pathname.split("/").pop() || "index.html";
+      if (sessionStorage.getItem("systemAdminAuthenticated") !== "true") {
+        location.replace(`login.html?next=${encodeURIComponent(page)}`);
+      }
+    })();
+  </script>
   <style>
     :root {
       color-scheme: light;
