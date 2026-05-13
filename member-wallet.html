@@ -1,0 +1,1553 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>會員錢包</title>
+  <script>
+    (() => {
+      const page = location.pathname.split("/").pop() || "index.html";
+      if (sessionStorage.getItem("systemAdminAuthenticated") !== "true") {
+        location.replace(`login.html?next=${encodeURIComponent(page)}`);
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef3f8;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --line: #dce3ea;
+      --line-strong: #c7d1dc;
+      --text: #172121;
+      --muted: #6a747e;
+      --blue: #5961cf;
+      --blue-strong: #4852bd;
+      --green: #138a29;
+      --green-soft: #e9f8ed;
+      --red: #d92d20;
+      --red-soft: #fff0f0;
+      --amber: #a35c00;
+      --amber-soft: #fff4df;
+      --shadow: 0 18px 48px rgba(23, 33, 33, 0.14);
+      --radius: 8px;
+      --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    html {
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    .icon {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: 0 0 auto;
+    }
+
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      width: 210px;
+      min-height: 100vh;
+      flex: 0 0 210px;
+      border-right: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .sidebar-logo {
+      padding: 14px 16px 10px;
+      color: #5867d8;
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .sidebar-menu {
+      padding: 8px 0 18px;
+    }
+
+    .menu-item,
+    .submenu-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 44px;
+      padding: 0 18px;
+      border: 0;
+      background: transparent;
+      color: #303a3a;
+      text-align: left;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .menu-item {
+      justify-content: space-between;
+    }
+
+    .menu-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .menu-drag {
+      color: #7b8786;
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    .menu-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 25px;
+      height: 18px;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: #d90000;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .submenu {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .submenu-item {
+      min-height: 50px;
+      padding-left: 36px;
+      color: #343d3d;
+    }
+
+    .submenu-item.active {
+      background: #e8edf2;
+      color: #4f63d9;
+    }
+
+    .app-main {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .workspace-header {
+      position: sticky;
+      top: 0;
+      z-index: 18;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 44px;
+      padding: 0 20px 0 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .menu-toggle {
+      width: 32px;
+      height: 32px;
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      border-right: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .workspace-user {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .tab-strip {
+      display: flex;
+      align-items: flex-end;
+      min-height: 36px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .page-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 28px;
+      padding: 0 12px;
+      border: 0;
+      background: var(--blue);
+      color: #fff;
+      font-size: 12px;
+    }
+
+    .main {
+      padding: 28px 24px 42px;
+    }
+
+    .page-head,
+    .page-actions,
+    .filter-bar,
+    .applied-surface,
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .page-head {
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      color: #6f777f;
+      font-size: 22px;
+      font-weight: 500;
+    }
+
+    .metrics,
+    .page-actions-left,
+    .filter-actions,
+    .bulk-actions,
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .metric {
+      min-width: 104px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 3px;
+      color: var(--text);
+      font-size: 17px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 34px;
+      padding: 6px 13px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #fff;
+      color: #3f4a4a;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .button.primary {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .button.primary:hover {
+      background: var(--blue-strong);
+    }
+
+    .button.danger {
+      border-color: #f0b8b3;
+      background: #fff;
+      color: var(--red);
+    }
+
+    .button.quiet {
+      border: 0;
+      background: transparent;
+      color: #4e5acb;
+    }
+
+    .button.icon-only {
+      width: 34px;
+      padding: 0;
+    }
+
+    .surface {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .filter-surface {
+      margin-bottom: 14px;
+      padding: 20px;
+    }
+
+    .filter-bar {
+      margin-bottom: 14px;
+    }
+
+    .filter-bar h2 {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .quick-grid,
+    .more-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .more-grid {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      min-height: 36px;
+      padding: 7px 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 92px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .date-range {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .span-2 {
+      grid-column: span 2;
+    }
+
+    .applied-surface {
+      margin-bottom: 16px;
+      padding: 12px 14px;
+    }
+
+    .applied-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .applied-title,
+    .result-count {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .result-count strong {
+      color: var(--text);
+    }
+
+    .chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 26px;
+      padding: 3px 8px;
+      border: 1px solid #c9d6ff;
+      border-radius: 999px;
+      background: #f1f4ff;
+      color: #3d47b6;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .chip button {
+      width: 16px;
+      height: 16px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: currentColor;
+      font-weight: 900;
+    }
+
+    .empty-chip {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .table-surface {
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #f8fafc;
+    }
+
+    .selected-count {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1060px;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--muted);
+      background: #f4f6f8;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: #fbfdff;
+    }
+
+    .check-col {
+      width: 48px;
+    }
+
+    .wallet-col {
+      width: 250px;
+    }
+
+    .agent-col {
+      width: 130px;
+    }
+
+    .currency-col {
+      width: 94px;
+    }
+
+    .balance-col {
+      width: 132px;
+    }
+
+    .time-col {
+      width: 160px;
+    }
+
+    .action-col {
+      width: 190px;
+    }
+
+    .wallet-info,
+    .summary {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .wallet-name,
+    .summary-text {
+      overflow: hidden;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 900;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .wallet-meta,
+    .summary-subtext {
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .id-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 26px;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .id-text {
+      overflow: hidden;
+      min-width: 0;
+      padding: 3px 6px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface-soft);
+      color: #455151;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.35;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .copy-button {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--muted);
+    }
+
+    .copy-button.copied {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .currency-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      min-height: 24px;
+      padding: 3px 9px;
+      border: 1px solid #d3dcff;
+      border-radius: 999px;
+      background: #f2f5ff;
+      color: #3d47b6;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .money {
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+    }
+
+    .money.zero {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .card-list {
+      display: none;
+      gap: 10px;
+    }
+
+    .wallet-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      min-width: 0;
+    }
+
+    .card-title strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .card-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .card-meta-item {
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface-soft);
+    }
+
+    .card-meta-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .card-meta-item strong {
+      display: block;
+      overflow: hidden;
+      margin-top: 4px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .empty-state {
+      display: none;
+      padding: 52px 18px;
+      text-align: center;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 39;
+      display: none;
+      background: rgba(23, 33, 33, 0.42);
+    }
+
+    .modal-backdrop.is-open {
+      display: block;
+    }
+
+    .wallet-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      z-index: 40;
+      width: min(650px, calc(100vw - 28px));
+      max-height: calc(100vh - 28px);
+      display: none;
+      flex-direction: column;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      transform: translate(-50%, -50%);
+    }
+
+    .wallet-modal.is-open {
+      display: flex;
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-title strong {
+      display: block;
+      color: #5e676f;
+      font-size: 18px;
+    }
+
+    .modal-title span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .modal-body {
+      overflow-y: auto;
+      padding: 20px 24px 0;
+    }
+
+    .transfer-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .amount-field {
+      position: relative;
+    }
+
+    .amount-field input {
+      padding-left: 32px;
+    }
+
+    .amount-prefix {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      color: var(--muted);
+      transform: translateY(-50%);
+    }
+
+    .amount-presets {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: -8px;
+      padding-left: 68px;
+    }
+
+    .preset-button {
+      min-height: 30px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: #fff;
+      color: #526060;
+      font-size: 13px;
+    }
+
+    .preset-button:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .required {
+      color: var(--red);
+      font-weight: 900;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 20px 0 16px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    @media (max-width: 1180px) {
+      .quick-grid,
+      .more-grid {
+        grid-template-columns: repeat(3, minmax(140px, 1fr));
+      }
+    }
+
+    @media (max-width: 820px) {
+      .app-shell {
+        display: block;
+      }
+
+      .sidebar {
+        position: relative;
+        width: 100%;
+        min-height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .sidebar-logo {
+        font-size: 28px;
+      }
+
+      .sidebar-menu {
+        display: none;
+      }
+
+      .main {
+        padding: 16px 14px 32px;
+      }
+
+      .page-head,
+      .page-actions,
+      .filter-bar,
+      .applied-surface,
+      .table-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .metrics,
+      .page-actions-left,
+      .filter-actions,
+      .bulk-actions {
+        justify-content: flex-start;
+      }
+
+      .quick-grid,
+      .more-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .span-2 {
+        grid-column: span 2;
+      }
+
+      .table-scroll {
+        display: none;
+      }
+
+      .card-list {
+        display: grid;
+        padding: 12px;
+      }
+
+      .applied-left {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 540px) {
+      h1 {
+        font-size: 20px;
+      }
+
+      .quick-grid,
+      .more-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .span-2 {
+        grid-column: span 1;
+      }
+
+      .date-range,
+      .card-meta,
+      .amount-presets {
+        grid-template-columns: 1fr;
+      }
+
+      .amount-presets {
+        padding-left: 0;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .button.icon-only,
+      .row-actions .button {
+        width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="左側菜單">
+      <div class="sidebar-logo">SYSTEM</div>
+      <nav class="sidebar-menu">
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>會員管理</span><span>⌃</span></button>
+        <div class="submenu">
+          <a class="submenu-item" href="member-account.html">會員帳戶</a>
+          <a class="submenu-item active" href="member-wallet.html">會員錢包</a>
+          <button class="submenu-item" type="button">會員標籤</button>
+        </div>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>代理管理</span><span class="menu-badge">19</span><span>⌄</span></button>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>遊戲商管理</span><span>⌄</span></button>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>遊戲管理</span><span>⌄</span></button>
+        <div class="submenu">
+          <a class="submenu-item" href="game-list.html">遊戲清單</a>
+          <a class="submenu-item" href="index.html">遊戲接入</a>
+          <a class="submenu-item" href="game-lobby-list.html">遊戲大廳清單</a>
+          <button class="submenu-item" type="button">遊戲大廳接入</button>
+        </div>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>內容管理</span><span>⌄</span></button>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>運營系統</span><span>⌄</span></button>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>支付系統</span><span class="menu-badge">1</span><span>⌄</span></button>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>財務系統</span><span>⌄</span></button>
+        <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>系統</span><span>⌄</span></button>
+      </nav>
+    </aside>
+
+    <div class="app-main">
+      <header class="workspace-header">
+        <button class="menu-toggle" type="button" aria-label="展開或收合菜單">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"></path><path d="M4 12h12"></path><path d="M4 18h16"></path></svg>
+        </button>
+        <div class="workspace-user">
+          <span>pl_raymond</span>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+      </header>
+      <div class="tab-strip">
+        <button class="page-tab" type="button">會員錢包 <span aria-hidden="true">×</span></button>
+      </div>
+
+      <main class="main">
+        <div class="page-head">
+          <div>
+            <h1>會員錢包</h1>
+          </div>
+          <div class="metrics" aria-label="摘要">
+            <div class="metric">錢包數 <strong id="totalMetric">0</strong></div>
+            <div class="metric">有餘額 <strong id="fundedMetric">0</strong></div>
+            <div class="metric">幣種數 <strong id="currencyMetric">0</strong></div>
+          </div>
+        </div>
+
+        <div class="page-actions">
+          <div class="page-actions-left">
+            <button class="button" type="button" id="refreshButton">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2"></path><path d="M3 12A9 9 0 0 1 18.5 5.8"></path><path d="M18 2v4h4"></path><path d="M6 22v-4H2"></path></svg>
+              刷新
+            </button>
+            <button class="button" type="button" id="toggleFilters" aria-expanded="true" aria-controls="filterPanel">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18"></path><path d="M6 12h12"></path><path d="M10 19h4"></path></svg>
+              篩選
+            </button>
+          </div>
+        </div>
+
+        <section class="surface filter-surface" id="filterPanel" aria-label="篩選">
+          <form id="filterForm">
+            <div class="filter-bar">
+              <h2>快速篩選</h2>
+              <div class="filter-actions">
+                <button class="button" type="button" id="moreToggle" aria-expanded="false" aria-controls="moreFilters">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18"></path><path d="M6 12h12"></path><path d="M10 19h4"></path></svg>
+                  更多篩選
+                </button>
+                <button class="button primary" type="submit">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                  搜尋
+                </button>
+                <button class="button" type="button" id="resetFilters">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg>
+                  重置
+                </button>
+              </div>
+            </div>
+
+            <div class="quick-grid">
+              <div class="field">
+                <label for="userNo">用戶序號</label>
+                <input id="userNo" name="userNo" type="search" placeholder="用戶序號">
+              </div>
+              <div class="field">
+                <label for="account">玩家帳號</label>
+                <input id="account" name="account" type="search" placeholder="玩家帳號">
+              </div>
+              <div class="field">
+                <label for="agent">所屬代理</label>
+                <select id="agent" name="agent"><option value="">全部</option></select>
+              </div>
+              <div class="field">
+                <label for="minAmount">最小金額</label>
+                <input id="minAmount" name="minAmount" type="number" min="0" placeholder="最小金額">
+              </div>
+              <div class="field">
+                <label for="maxAmount">最大金額</label>
+                <input id="maxAmount" name="maxAmount" type="number" min="0" placeholder="最大金額">
+              </div>
+            </div>
+
+            <div class="more-grid" id="moreFilters" hidden>
+              <div class="field"><label for="currency">幣種</label><select id="currency" name="currency"><option value="">全部</option></select></div>
+              <div class="field span-2">
+                <label>建立時間區間</label>
+                <div class="date-range">
+                  <input id="createdFrom" name="createdFrom" type="date" aria-label="建立時間開始">
+                  <input id="createdTo" name="createdTo" type="date" aria-label="建立時間結束">
+                </div>
+              </div>
+              <div class="field span-2">
+                <label>更新時間區間</label>
+                <div class="date-range">
+                  <input id="updatedFrom" name="updatedFrom" type="date" aria-label="更新時間開始">
+                  <input id="updatedTo" name="updatedTo" type="date" aria-label="更新時間結束">
+                </div>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <section class="surface applied-surface" aria-label="已套用篩選條件">
+          <div class="applied-left">
+            <div class="applied-title">已套用篩選條件（<span id="filterCount">0</span>）</div>
+            <div class="result-count">共 <strong id="resultCount">0</strong> 筆結果</div>
+            <div class="chips" id="activeChips"></div>
+          </div>
+          <button class="button quiet" type="button" id="clearApplied">清除全部</button>
+        </section>
+
+        <section class="surface table-surface" aria-label="會員錢包列表">
+          <div class="table-toolbar">
+            <div class="bulk-actions">
+              <span class="selected-count">已選 <strong id="selectedCount">0</strong></span>
+              <button class="button" type="button" disabled>批次上分</button>
+              <button class="button" type="button" disabled>批次下分</button>
+            </div>
+            <div class="bulk-actions">
+              <button class="button" type="button" id="sortUpdated">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 15 5 5 5-5"></path><path d="M12 4v16"></path></svg>
+                更新時間
+              </button>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th class="check-col"><input id="selectAll" type="checkbox" aria-label="全選"></th>
+                  <th class="wallet-col">錢包資訊</th>
+                  <th class="agent-col">所屬代理</th>
+                  <th class="currency-col">幣種</th>
+                  <th class="balance-col">餘額</th>
+                  <th class="time-col">建立時間</th>
+                  <th class="time-col">更新時間</th>
+                  <th class="action-col">操作</th>
+                </tr>
+              </thead>
+              <tbody id="walletRows"></tbody>
+            </table>
+          </div>
+          <div class="card-list" id="cardList"></div>
+          <div class="empty-state" id="emptyState">
+            <strong>沒有符合條件的錢包</strong>
+            <span>調整篩選條件後會重新整理列表。</span>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+  <section class="wallet-modal" id="walletModal" aria-label="系統上分下分" aria-hidden="true">
+    <div class="modal-head">
+      <div class="modal-title">
+        <strong id="modalTitle">系統上分</strong>
+        <span id="modalSub">-</span>
+      </div>
+      <button class="button icon-only" type="button" id="closeModal" aria-label="關閉">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </section>
+
+  <script>
+    const filterMeta = {
+      userNo: "用戶序號",
+      account: "玩家帳號",
+      agent: "所屬代理",
+      minAmount: "最小金額",
+      maxAmount: "最大金額",
+      currency: "幣種",
+      createdFrom: "建立時間起",
+      createdTo: "建立時間迄",
+      updatedFrom: "更新時間起",
+      updatedTo: "更新時間迄"
+    };
+
+    const wallets = [
+      { id: "W-10000273-BRL", userNo: "10000273", account: "icafe-agent002-user020", agent: "System", currency: "BRL", balance: 0, createdAt: "2023-12-30 01:07:39", updatedAt: "2023-12-30 01:07:39" },
+      { id: "W-10000385-BRL", userNo: "10000385", account: "crimsonWCuser02", agent: "System", currency: "BRL", balance: 0, createdAt: "2024-02-07 15:18:58", updatedAt: "2024-02-07 15:18:58" },
+      { id: "W-10000390-BRL", userNo: "10000390", account: "jpcafe002", agent: "System", currency: "BRL", balance: 0, createdAt: "2024-02-07 17:42:49", updatedAt: "2024-02-07 17:42:49" },
+      { id: "W-10000391-BRL", userNo: "10000391", account: "jpcafe003", agent: "System", currency: "BRL", balance: 0, createdAt: "2024-02-07 17:58:36", updatedAt: "2024-02-07 17:58:36" },
+      { id: "W-10000397-BRL", userNo: "10000397", account: "qaevan0213", agent: "System", currency: "BRL", balance: 0, createdAt: "2024-02-14 01:36:33", updatedAt: "2024-02-14 01:36:33" },
+      { id: "W-10000401-BRL", userNo: "10000401", account: "QAtest01", agent: "System", currency: "BRL", balance: 0, createdAt: "2024-02-16 17:36:08", updatedAt: "2024-02-16 17:36:08" },
+      { id: "W-10000385-CNY", userNo: "10000385", account: "crimsonWCuser02", agent: "System", currency: "CNY", balance: 4, createdAt: "2024-02-20 20:37:04", updatedAt: "2024-04-03 15:50:43" },
+      { id: "W-10000385-JPY", userNo: "10000385", account: "crimsonWCuser02", agent: "System", currency: "JPY", balance: 1, createdAt: "2024-02-20 20:37:11", updatedAt: "2024-02-20 20:37:11" },
+      { id: "W-10001472-USDT", userNo: "10001472", account: "vip0526", agent: "System", currency: "USDT", balance: 7500, createdAt: "2025-11-15 18:05:43", updatedAt: "2026-05-07 15:33:51" },
+      { id: "W-10001412-BRL", userNo: "10001412", account: "member888", agent: "System", currency: "BRL", balance: 20, createdAt: "2025-09-28 12:20:18", updatedAt: "2025-09-28 12:31:24" }
+    ];
+
+    let filteredWallets = [...wallets];
+    let selectedIds = new Set();
+    let sortDescending = true;
+
+    const form = document.getElementById("filterForm");
+    const rowsEl = document.getElementById("walletRows");
+    const cardListEl = document.getElementById("cardList");
+    const chipsEl = document.getElementById("activeChips");
+    const resultCountEl = document.getElementById("resultCount");
+    const filterCountEl = document.getElementById("filterCount");
+    const selectAllEl = document.getElementById("selectAll");
+    const selectedCountEl = document.getElementById("selectedCount");
+    const emptyStateEl = document.getElementById("emptyState");
+    const modalEl = document.getElementById("walletModal");
+    const modalBackdropEl = document.getElementById("modalBackdrop");
+    const modalTitleEl = document.getElementById("modalTitle");
+    const modalSubEl = document.getElementById("modalSub");
+    const modalBodyEl = document.getElementById("modalBody");
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getUnique(field) {
+      return [...new Set(wallets.map((wallet) => wallet[field]))].sort((a, b) => a.localeCompare(b, "zh-Hant"));
+    }
+
+    function fillOptions(id, values) {
+      const select = document.getElementById(id);
+      values.forEach((value) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+      });
+    }
+
+    function initializeOptions() {
+      fillOptions("agent", getUnique("agent"));
+      fillOptions("currency", getUnique("currency"));
+    }
+
+    function getFilters() {
+      return Object.fromEntries(new FormData(form).entries());
+    }
+
+    function matchesFilter(wallet, filters) {
+      if (filters.userNo && !wallet.userNo.includes(filters.userNo.trim())) return false;
+      if (filters.account && !wallet.account.toLowerCase().includes(filters.account.trim().toLowerCase())) return false;
+      if (filters.agent && wallet.agent !== filters.agent) return false;
+      if (filters.currency && wallet.currency !== filters.currency) return false;
+      if (filters.minAmount && wallet.balance < Number(filters.minAmount)) return false;
+      if (filters.maxAmount && wallet.balance > Number(filters.maxAmount)) return false;
+
+      const createdDate = wallet.createdAt.slice(0, 10);
+      const updatedDate = wallet.updatedAt.slice(0, 10);
+      if (filters.createdFrom && createdDate < filters.createdFrom) return false;
+      if (filters.createdTo && createdDate > filters.createdTo) return false;
+      if (filters.updatedFrom && updatedDate < filters.updatedFrom) return false;
+      if (filters.updatedTo && updatedDate > filters.updatedTo) return false;
+      return true;
+    }
+
+    function formatMoney(value) {
+      return Number(value).toLocaleString("zh-Hant", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function moneyMarkup(value) {
+      const zeroClass = Number(value) === 0 ? " zero" : "";
+      return `<span class="money${zeroClass}">${escapeHtml(formatMoney(value))}</span>`;
+    }
+
+    function idMarkup(wallet) {
+      return `<div class="id-row">
+        <span class="id-text" title="${escapeHtml(wallet.userNo)}">${escapeHtml(wallet.userNo)}</span>
+        <button class="copy-button" type="button" data-copy-id="${escapeHtml(wallet.userNo)}" aria-label="複製 ${escapeHtml(wallet.userNo)}">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+      </div>`;
+    }
+
+    function walletInfoMarkup(wallet) {
+      return `<div class="wallet-info">
+        <div class="wallet-name">${escapeHtml(wallet.account)}</div>
+        ${idMarkup(wallet)}
+      </div>`;
+    }
+
+    function rowActions(wallet) {
+      return `<div class="row-actions">
+        <button class="button primary" type="button" data-wallet-action="deposit" data-wallet-id="${escapeHtml(wallet.id)}">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+          系統上分
+        </button>
+        <button class="button" type="button" data-wallet-action="withdraw" data-wallet-id="${escapeHtml(wallet.id)}">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path></svg>
+          系統下分
+        </button>
+      </div>`;
+    }
+
+    function renderRows() {
+      rowsEl.innerHTML = filteredWallets.map((wallet) => {
+        const checked = selectedIds.has(wallet.id) ? "checked" : "";
+        return `<tr>
+          <td class="check-col"><input type="checkbox" class="row-check" data-id="${escapeHtml(wallet.id)}" aria-label="選取 ${escapeHtml(wallet.account)} ${escapeHtml(wallet.currency)}" ${checked}></td>
+          <td class="wallet-col">${walletInfoMarkup(wallet)}</td>
+          <td class="agent-col"><span class="summary-text">${escapeHtml(wallet.agent)}</span></td>
+          <td class="currency-col"><span class="currency-badge">${escapeHtml(wallet.currency)}</span></td>
+          <td class="balance-col">${moneyMarkup(wallet.balance)}</td>
+          <td class="time-col"><span class="summary-text">${escapeHtml(wallet.createdAt)}</span></td>
+          <td class="time-col"><span class="summary-text">${escapeHtml(wallet.updatedAt)}</span></td>
+          <td class="action-col">${rowActions(wallet)}</td>
+        </tr>`;
+      }).join("");
+
+      cardListEl.innerHTML = filteredWallets.map((wallet) => `<article class="wallet-card">
+        <div class="card-head">
+          <div class="card-title">
+            <strong>${escapeHtml(wallet.account)}</strong>
+            <span class="wallet-meta">${escapeHtml(wallet.agent)}｜${escapeHtml(wallet.userNo)}</span>
+          </div>
+          <span class="currency-badge">${escapeHtml(wallet.currency)}</span>
+        </div>
+        ${idMarkup(wallet)}
+        <div class="card-meta">
+          <div class="card-meta-item"><span>餘額</span><strong>${escapeHtml(formatMoney(wallet.balance))}</strong></div>
+          <div class="card-meta-item"><span>建立時間</span><strong>${escapeHtml(wallet.createdAt.slice(0, 10))}</strong></div>
+          <div class="card-meta-item"><span>更新時間</span><strong>${escapeHtml(wallet.updatedAt.slice(0, 10))}</strong></div>
+          <div class="card-meta-item"><span>所屬代理</span><strong>${escapeHtml(wallet.agent)}</strong></div>
+        </div>
+        ${rowActions(wallet)}
+      </article>`).join("");
+
+      emptyStateEl.style.display = filteredWallets.length ? "none" : "block";
+      updateSelectionState();
+    }
+
+    function renderChips(filters) {
+      const activeFilters = Object.entries(filters)
+        .filter(([, value]) => value !== "")
+        .map(([key, value]) => ({ key, label: filterMeta[key], value }));
+      filterCountEl.textContent = activeFilters.length;
+      chipsEl.innerHTML = activeFilters.length
+        ? activeFilters.map((filter) => `<span class="chip"><span>${escapeHtml(filter.label)}：${escapeHtml(filter.value)}</span><button type="button" data-remove-filter="${escapeHtml(filter.key)}" aria-label="移除 ${escapeHtml(filter.label)}">×</button></span>`).join("")
+        : `<span class="empty-chip">無套用條件</span>`;
+    }
+
+    function renderMetrics() {
+      document.getElementById("totalMetric").textContent = wallets.length;
+      document.getElementById("fundedMetric").textContent = wallets.filter((wallet) => wallet.balance > 0).length;
+      document.getElementById("currencyMetric").textContent = getUnique("currency").length;
+    }
+
+    function applyFilters() {
+      const filters = getFilters();
+      filteredWallets = wallets
+        .filter((wallet) => matchesFilter(wallet, filters))
+        .sort((a, b) => a.updatedAt.localeCompare(b.updatedAt) * (sortDescending ? -1 : 1));
+      selectedIds = new Set([...selectedIds].filter((id) => filteredWallets.some((wallet) => wallet.id === id)));
+      resultCountEl.textContent = filteredWallets.length;
+      renderChips(filters);
+      renderRows();
+    }
+
+    function resetFilters() {
+      form.reset();
+      applyFilters();
+    }
+
+    function updateSelectionState() {
+      selectedCountEl.textContent = selectedIds.size;
+      const visibleIds = filteredWallets.map((wallet) => wallet.id);
+      const visibleSelected = visibleIds.filter((id) => selectedIds.has(id)).length;
+      selectAllEl.checked = visibleIds.length > 0 && visibleSelected === visibleIds.length;
+      selectAllEl.indeterminate = visibleSelected > 0 && visibleSelected < visibleIds.length;
+    }
+
+    function getCurrentTimestamp() {
+      const now = new Date();
+      const pad = (value) => String(value).padStart(2, "0");
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    }
+
+    function openTransferModal(walletId, mode) {
+      const wallet = wallets.find((item) => item.id === walletId);
+      if (!wallet) return;
+      const isDeposit = mode === "deposit";
+      modalTitleEl.textContent = isDeposit ? "系統上分" : "系統下分";
+      modalSubEl.textContent = `${wallet.account}｜${wallet.currency}｜目前餘額 ${formatMoney(wallet.balance)}`;
+      modalBodyEl.innerHTML = renderTransferForm(wallet, mode);
+      modalEl.classList.add("is-open");
+      modalBackdropEl.classList.add("is-open");
+      modalEl.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal() {
+      modalEl.classList.remove("is-open");
+      modalBackdropEl.classList.remove("is-open");
+      modalEl.setAttribute("aria-hidden", "true");
+    }
+
+    function renderTransferForm(wallet, mode) {
+      const title = mode === "deposit" ? "系統上分" : "系統下分";
+      return `<form class="transfer-form" id="transferForm" data-wallet-id="${escapeHtml(wallet.id)}" data-mode="${escapeHtml(mode)}">
+        <div class="field">
+          <label for="transferAccount">玩家帳號</label>
+          <input id="transferAccount" value="${escapeHtml(`${wallet.account}(${wallet.agent})`)}" readonly>
+        </div>
+        <div class="field">
+          <label for="transferAmount"><span class="required">*</span> 額度</label>
+          <div class="amount-field">
+            <span class="amount-prefix">¥</span>
+            <input id="transferAmount" name="amount" type="text" inputmode="decimal" placeholder="0" required>
+          </div>
+        </div>
+        <div class="amount-presets" aria-label="${escapeHtml(title)}快捷金額">
+          ${[100, 500, 1000, 5000].map((amount) => `<button class="preset-button" type="button" data-preset="${amount}">+${amount}</button>`).join("")}
+        </div>
+        <div class="field">
+          <label for="transferRemark"><span class="required">*</span> 備註</label>
+          <textarea id="transferRemark" name="remark" required></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="button" type="button" data-transfer-reset>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg>
+            重置
+          </button>
+          <button class="button primary" type="submit">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7 9 18l-5-5"></path></svg>
+            保存
+          </button>
+        </div>
+      </form>`;
+    }
+
+    function submitTransfer(transferForm) {
+      const wallet = wallets.find((item) => item.id === transferForm.dataset.walletId);
+      if (!wallet) return;
+      const amount = Number(transferForm.elements.amount.value);
+      const remark = transferForm.elements.remark.value.trim();
+      if (!amount || amount <= 0) {
+        alert("請輸入有效額度");
+        return;
+      }
+      if (!remark) {
+        alert("請填寫備註");
+        return;
+      }
+      if (transferForm.dataset.mode === "withdraw" && amount > wallet.balance) {
+        alert("下分金額不可大於目前餘額");
+        return;
+      }
+      wallet.balance = transferForm.dataset.mode === "deposit" ? wallet.balance + amount : wallet.balance - amount;
+      wallet.updatedAt = getCurrentTimestamp();
+      renderMetrics();
+      applyFilters();
+      closeModal();
+    }
+
+    async function copyId(button) {
+      const value = button.dataset.copyId;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(value);
+        } else {
+          const helper = document.createElement("textarea");
+          helper.value = value;
+          helper.setAttribute("readonly", "");
+          helper.style.position = "fixed";
+          helper.style.opacity = "0";
+          document.body.appendChild(helper);
+          helper.select();
+          document.execCommand("copy");
+          helper.remove();
+        }
+        button.classList.add("copied");
+        button.setAttribute("aria-label", "已複製用戶序號");
+        setTimeout(() => {
+          button.classList.remove("copied");
+          button.setAttribute("aria-label", `複製 ${value}`);
+        }, 1200);
+      } catch (error) {
+        button.setAttribute("aria-label", "複製失敗");
+      }
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      applyFilters();
+    });
+
+    document.getElementById("toggleFilters").addEventListener("click", (event) => {
+      const panel = document.getElementById("filterPanel");
+      panel.hidden = !panel.hidden;
+      event.currentTarget.setAttribute("aria-expanded", String(!panel.hidden));
+    });
+
+    document.getElementById("moreToggle").addEventListener("click", (event) => {
+      const panel = document.getElementById("moreFilters");
+      panel.hidden = !panel.hidden;
+      event.currentTarget.setAttribute("aria-expanded", String(!panel.hidden));
+    });
+
+    document.getElementById("resetFilters").addEventListener("click", resetFilters);
+    document.getElementById("clearApplied").addEventListener("click", resetFilters);
+    document.getElementById("refreshButton").addEventListener("click", applyFilters);
+    document.getElementById("sortUpdated").addEventListener("click", () => {
+      sortDescending = !sortDescending;
+      applyFilters();
+    });
+
+    chipsEl.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-remove-filter]");
+      if (!button) return;
+      const control = form.elements[button.dataset.removeFilter];
+      if (control) {
+        control.value = "";
+        applyFilters();
+      }
+    });
+
+    document.body.addEventListener("click", (event) => {
+      const copyButton = event.target.closest("[data-copy-id]");
+      if (copyButton) {
+        copyId(copyButton);
+        return;
+      }
+      const actionButton = event.target.closest("[data-wallet-action]");
+      if (actionButton) {
+        openTransferModal(actionButton.dataset.walletId, actionButton.dataset.walletAction);
+      }
+    });
+
+    document.body.addEventListener("change", (event) => {
+      const checkbox = event.target.closest(".row-check");
+      if (!checkbox) return;
+      if (checkbox.checked) {
+        selectedIds.add(checkbox.dataset.id);
+      } else {
+        selectedIds.delete(checkbox.dataset.id);
+      }
+      updateSelectionState();
+    });
+
+    selectAllEl.addEventListener("change", () => {
+      const visibleIds = filteredWallets.map((wallet) => wallet.id);
+      if (selectAllEl.checked) {
+        visibleIds.forEach((id) => selectedIds.add(id));
+      } else {
+        visibleIds.forEach((id) => selectedIds.delete(id));
+      }
+      renderRows();
+    });
+
+    modalBodyEl.addEventListener("click", (event) => {
+      const preset = event.target.closest("[data-preset]");
+      if (preset) {
+        const input = document.getElementById("transferAmount");
+        input.value = String((Number(input.value) || 0) + Number(preset.dataset.preset));
+      }
+      const reset = event.target.closest("[data-transfer-reset]");
+      if (reset) {
+        const formEl = document.getElementById("transferForm");
+        if (formEl) formEl.reset();
+      }
+    });
+
+    modalBodyEl.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (event.target.getAttribute("id") === "transferForm") {
+        submitTransfer(event.target);
+      }
+    });
+
+    document.getElementById("closeModal").addEventListener("click", closeModal);
+    modalBackdropEl.addEventListener("click", closeModal);
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeModal();
+    });
+
+    initializeOptions();
+    renderMetrics();
+    applyFilters();
+  </script>
+</body>
+</html>
