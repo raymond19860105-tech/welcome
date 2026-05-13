@@ -1110,6 +1110,10 @@
         display: none;
       }
 
+      .sidebar.is-mobile-open .sidebar-menu {
+        display: flex;
+      }
+
       .main {
         padding: 16px 14px 32px;
       }
@@ -1214,7 +1218,7 @@
 
     <div class="app-main">
       <header class="workspace-header">
-        <button class="menu-toggle" type="button" aria-label="展開或收合菜單">
+        <button class="menu-toggle" type="button" aria-label="展開或收合菜單" aria-expanded="false">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"></path><path d="M4 12h12"></path><path d="M4 18h16"></path></svg>
         </button>
         <div class="workspace-user">
@@ -2137,6 +2141,23 @@
       if (event.key === "Escape") closeDrawer();
     });
 
+    function setupMobileMenu() {
+      const menuToggleEl = document.querySelector(".menu-toggle");
+      const sidebarEl = document.querySelector(".sidebar");
+      if (!menuToggleEl || !sidebarEl) return;
+      menuToggleEl.addEventListener("click", () => {
+        const isOpen = sidebarEl.classList.toggle("is-mobile-open");
+        menuToggleEl.setAttribute("aria-expanded", String(isOpen));
+      });
+      sidebarEl.addEventListener("click", (event) => {
+        const link = event.target.closest("a.submenu-item");
+        if (!link || window.matchMedia("(min-width: 821px)").matches) return;
+        sidebarEl.classList.remove("is-mobile-open");
+        menuToggleEl.setAttribute("aria-expanded", "false");
+      });
+    }
+
+    setupMobileMenu();
     initializeOptions();
     renderMetrics();
     applyFilters();
