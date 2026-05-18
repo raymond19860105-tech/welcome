@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>會員錢包</title>
+  <title>會員標籤</title>
   <script>
     (() => {
       const page = location.pathname.split("/").pop() || "index.html";
@@ -28,8 +28,6 @@
       --green-soft: #e9f8ed;
       --red: #d92d20;
       --red-soft: #fff0f0;
-      --amber: #a35c00;
-      --amber-soft: #fff4df;
       --shadow: 0 18px 48px rgba(23, 33, 33, 0.14);
       --radius: 8px;
       --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -247,7 +245,8 @@
     .page-actions,
     .filter-bar,
     .applied-surface,
-    .table-toolbar {
+    .table-toolbar,
+    .pagination {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -267,8 +266,8 @@
     .metrics,
     .page-actions-left,
     .filter-actions,
-    .bulk-actions,
-    .row-actions {
+    .row-actions,
+    .pagination-controls {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -358,17 +357,10 @@
       font-weight: 900;
     }
 
-    .quick-grid,
-    .more-grid {
+    .quick-grid {
       display: grid;
-      grid-template-columns: repeat(5, minmax(160px, 1fr));
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
       gap: 12px;
-    }
-
-    .more-grid {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid var(--line);
     }
 
     .field {
@@ -403,14 +395,15 @@
       line-height: 1.6;
     }
 
-    .date-range {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
+    .field-counter {
+      align-self: flex-end;
+      color: var(--muted);
+      font-size: 12px;
     }
 
-    .span-2 {
-      grid-column: span 2;
+    .required {
+      color: var(--red);
+      font-weight: 900;
     }
 
     .applied-surface {
@@ -484,13 +477,6 @@
       background: #f8fafc;
     }
 
-    .selected-count {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
     .table-scroll {
       overflow-x: auto;
       background: #fff;
@@ -498,7 +484,7 @@
 
     table {
       width: 100%;
-      min-width: 1060px;
+      min-width: 1180px;
       border-collapse: collapse;
       table-layout: fixed;
     }
@@ -523,35 +509,38 @@
       background: #fbfdff;
     }
 
-    .check-col {
-      width: 48px;
+    .id-col {
+      width: 92px;
     }
 
-    .wallet-col {
-      width: 250px;
+    .color-col {
+      width: 110px;
     }
 
-    .agent-col {
+    .name-col {
+      width: 140px;
+    }
+
+    .count-col {
+      width: 100px;
+    }
+
+    .remark-col {
+      width: 180px;
+    }
+
+    .user-col {
       width: 130px;
     }
 
-    .currency-col {
-      width: 94px;
-    }
-
-    .balance-col {
-      width: 132px;
-    }
-
     .time-col {
-      width: 160px;
+      width: 170px;
     }
 
     .action-col {
-      width: 190px;
+      width: 170px;
     }
 
-    .wallet-info,
     .summary {
       display: flex;
       flex-direction: column;
@@ -559,7 +548,6 @@
       min-width: 0;
     }
 
-    .wallet-name,
     .summary-text {
       overflow: hidden;
       color: var(--text);
@@ -569,80 +557,26 @@
       white-space: nowrap;
     }
 
-    .wallet-meta,
-    .summary-subtext {
-      overflow: hidden;
+    .summary-subtext,
+    .muted {
       color: var(--muted);
       font-size: 12px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
-    .id-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 26px;
-      align-items: center;
-      gap: 6px;
-      min-width: 0;
-    }
-
-    .id-text {
-      overflow: hidden;
-      min-width: 0;
-      padding: 3px 6px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: var(--surface-soft);
-      color: #455151;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 12px;
-      line-height: 1.35;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .copy-button {
-      display: inline-grid;
-      place-items: center;
-      width: 26px;
-      height: 26px;
-      padding: 0;
+    .label-swatch {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
       border: 1px solid var(--line-strong);
-      border-radius: 6px;
-      background: #fff;
-      color: var(--muted);
+      border-radius: 4px;
+      vertical-align: middle;
     }
 
-    .copy-button.copied {
-      border-color: var(--green);
-      background: var(--green-soft);
-      color: var(--green);
-    }
-
-    .currency-badge {
+    .label-preview {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      width: fit-content;
-      min-height: 24px;
-      padding: 3px 9px;
-      border: 1px solid #d3dcff;
-      border-radius: 999px;
-      background: #f2f5ff;
-      color: #3d47b6;
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .money {
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
-      font-weight: 900;
-    }
-
-    .money.zero {
-      color: var(--muted);
-      font-weight: 700;
+      gap: 8px;
+      min-height: 28px;
     }
 
     .card-list {
@@ -650,7 +584,7 @@
       gap: 10px;
     }
 
-    .wallet-card {
+    .label-card {
       padding: 12px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -713,6 +647,26 @@
       border-top: 1px solid var(--line);
     }
 
+    .pagination {
+      justify-content: center;
+      padding: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .page-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--blue);
+      font-weight: 900;
+    }
+
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -725,12 +679,12 @@
       display: block;
     }
 
-    .wallet-modal {
+    .label-modal {
       position: fixed;
       top: 50%;
       left: 50%;
       z-index: 40;
-      width: min(650px, calc(100vw - 28px));
+      width: min(520px, calc(100vw - 28px));
       max-height: calc(100vh - 28px);
       display: none;
       flex-direction: column;
@@ -740,7 +694,7 @@
       transform: translate(-50%, -50%);
     }
 
-    .wallet-modal.is-open {
+    .label-modal.is-open {
       display: flex;
     }
 
@@ -759,70 +713,20 @@
       font-size: 18px;
     }
 
-    .modal-title span {
-      display: block;
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
     .modal-body {
       overflow-y: auto;
       padding: 20px 24px 0;
     }
 
-    .transfer-form {
+    .label-form {
       display: flex;
       flex-direction: column;
-      gap: 18px;
-    }
-
-    .amount-field {
-      position: relative;
-    }
-
-    .amount-field input {
-      padding-left: 32px;
-    }
-
-    .amount-prefix {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      color: var(--muted);
-      transform: translateY(-50%);
-    }
-
-    .amount-presets {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 6px;
-      margin-top: -8px;
-      padding-left: 68px;
-    }
-
-    .preset-button {
-      min-height: 30px;
-      border: 1px solid var(--line-strong);
-      border-radius: 4px;
-      background: #fff;
-      color: #526060;
-      font-size: 13px;
-    }
-
-    .preset-button:hover {
-      border-color: var(--blue);
-      color: var(--blue);
-    }
-
-    .required {
-      color: var(--red);
-      font-weight: 900;
+      gap: 14px;
     }
 
     .modal-footer {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       gap: 10px;
       margin-top: 14px;
       padding: 20px 0 16px;
@@ -831,8 +735,7 @@
     }
 
     @media (max-width: 1180px) {
-      .quick-grid,
-      .more-grid {
+      .quick-grid {
         grid-template-columns: repeat(3, minmax(140px, 1fr));
       }
     }
@@ -890,18 +793,12 @@
 
       .metrics,
       .page-actions-left,
-      .filter-actions,
-      .bulk-actions {
+      .filter-actions {
         justify-content: flex-start;
       }
 
-      .quick-grid,
-      .more-grid {
+      .quick-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .span-2 {
-        grid-column: span 2;
       }
 
       .table-scroll {
@@ -925,22 +822,8 @@
       }
 
       .quick-grid,
-      .more-grid {
+      .card-meta {
         grid-template-columns: 1fr;
-      }
-
-      .span-2 {
-        grid-column: span 1;
-      }
-
-      .date-range,
-      .card-meta,
-      .amount-presets {
-        grid-template-columns: 1fr;
-      }
-
-      .amount-presets {
-        padding-left: 0;
       }
 
       .button {
@@ -962,8 +845,8 @@
         <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>會員管理</span><span>⌃</span></button>
         <div class="submenu">
           <a class="submenu-item" href="member-account.html">會員帳戶</a>
-          <a class="submenu-item active" href="member-wallet.html">會員錢包</a>
-          <a class="submenu-item" href="member-labels.html">會員標籤</a>
+          <a class="submenu-item" href="member-wallet.html">會員錢包</a>
+          <a class="submenu-item active" href="member-labels.html">會員標籤</a>
         </div>
         <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>代理管理</span><span class="menu-badge">19</span><span>⌄</span></button>
         <button class="menu-item" type="button"><span class="menu-label"><span class="menu-drag">≡</span>遊戲商管理</span><span>⌄</span></button>
@@ -993,18 +876,18 @@
         </div>
       </header>
       <div class="tab-strip">
-        <button class="page-tab" type="button">會員錢包 <span aria-hidden="true">×</span></button>
+        <button class="page-tab" type="button">會員標籤 <span aria-hidden="true">×</span></button>
       </div>
 
       <main class="main">
         <div class="page-head">
           <div>
-            <h1>會員錢包</h1>
+            <h1>會員標籤</h1>
           </div>
           <div class="metrics" aria-label="摘要">
-            <div class="metric">錢包數 <strong id="totalMetric">0</strong></div>
-            <div class="metric">有餘額 <strong id="fundedMetric">0</strong></div>
-            <div class="metric">幣種數 <strong id="currencyMetric">0</strong></div>
+            <div class="metric">標籤數 <strong id="totalMetric">0</strong></div>
+            <div class="metric">使用中 <strong id="activeMetric">0</strong></div>
+            <div class="metric">總用戶 <strong id="usersMetric">0</strong></div>
           </div>
         </div>
 
@@ -1014,25 +897,21 @@
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2"></path><path d="M3 12A9 9 0 0 1 18.5 5.8"></path><path d="M18 2v4h4"></path><path d="M6 22v-4H2"></path></svg>
               刷新
             </button>
-            <button class="button" type="button" id="toggleFilters" aria-expanded="true" aria-controls="filterPanel">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18"></path><path d="M6 12h12"></path><path d="M10 19h4"></path></svg>
-              篩選
+            <button class="button primary" type="button" id="openCreateLabel">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+              新增
             </button>
           </div>
         </div>
 
-        <section class="surface filter-surface" id="filterPanel" aria-label="篩選">
+        <section class="surface filter-surface" aria-label="篩選">
           <form id="filterForm">
             <div class="filter-bar">
               <h2>快速篩選</h2>
               <div class="filter-actions">
-                <button class="button" type="button" id="moreToggle" aria-expanded="false" aria-controls="moreFilters">
-                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18"></path><path d="M6 12h12"></path><path d="M10 19h4"></path></svg>
-                  更多篩選
-                </button>
                 <button class="button primary" type="submit">
                   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3"></path><circle cx="11" cy="11" r="8"></circle></svg>
-                  搜尋
+                  搜索
                 </button>
                 <button class="button" type="button" id="resetFilters">
                   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg>
@@ -1043,42 +922,16 @@
 
             <div class="quick-grid">
               <div class="field">
-                <label for="userNo">用戶序號</label>
-                <input id="userNo" name="userNo" type="search" placeholder="用戶序號">
+                <label for="idFilter">ID</label>
+                <input id="idFilter" name="id" type="search" placeholder="ID">
               </div>
               <div class="field">
-                <label for="account">玩家帳號</label>
-                <input id="account" name="account" type="search" placeholder="玩家帳號">
+                <label for="nameFilter">標籤名稱</label>
+                <input id="nameFilter" name="name" type="search" placeholder="標籤名稱">
               </div>
               <div class="field">
-                <label for="agent">所屬代理</label>
-                <select id="agent" name="agent"><option value="">全部</option></select>
-              </div>
-              <div class="field">
-                <label for="minAmount">最小金額</label>
-                <input id="minAmount" name="minAmount" type="number" min="0" placeholder="最小金額">
-              </div>
-              <div class="field">
-                <label for="maxAmount">最大金額</label>
-                <input id="maxAmount" name="maxAmount" type="number" min="0" placeholder="最大金額">
-              </div>
-            </div>
-
-            <div class="more-grid" id="moreFilters" hidden>
-              <div class="field"><label for="currency">幣種</label><select id="currency" name="currency"><option value="">全部</option></select></div>
-              <div class="field span-2">
-                <label>建立時間區間</label>
-                <div class="date-range">
-                  <input id="createdFrom" name="createdFrom" type="date" aria-label="建立時間開始">
-                  <input id="createdTo" name="createdTo" type="date" aria-label="建立時間結束">
-                </div>
-              </div>
-              <div class="field span-2">
-                <label>更新時間區間</label>
-                <div class="date-range">
-                  <input id="updatedFrom" name="updatedFrom" type="date" aria-label="更新時間開始">
-                  <input id="updatedTo" name="updatedTo" type="date" aria-label="更新時間結束">
-                </div>
+                <label for="colorFilter">標籤顏色</label>
+                <select id="colorFilter" name="color"><option value="">全部</option></select>
               </div>
             </div>
           </form>
@@ -1093,42 +946,51 @@
           <button class="button quiet" type="button" id="clearApplied">清除全部</button>
         </section>
 
-        <section class="surface table-surface" aria-label="會員錢包列表">
+        <section class="surface table-surface" aria-label="會員標籤列表">
           <div class="table-toolbar">
-            <div class="bulk-actions">
-              <span class="selected-count">已選 <strong id="selectedCount">0</strong></span>
-              <button class="button" type="button" disabled>批次上分</button>
-              <button class="button" type="button" disabled>批次下分</button>
-            </div>
-            <div class="bulk-actions">
+            <div class="pagination-controls">
               <button class="button" type="button" id="sortUpdated">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 15 5 5 5-5"></path><path d="M12 4v16"></path></svg>
                 更新時間
               </button>
             </div>
+            <span class="result-count">合計 <strong id="tableTotal">0</strong> 件</span>
           </div>
 
           <div class="table-scroll">
             <table>
               <thead>
                 <tr>
-                  <th class="check-col"><input id="selectAll" type="checkbox" aria-label="全選"></th>
-                  <th class="wallet-col">錢包資訊</th>
-                  <th class="agent-col">所屬代理</th>
-                  <th class="currency-col">幣種</th>
-                  <th class="balance-col">餘額</th>
-                  <th class="time-col">建立時間</th>
+                  <th class="id-col">ID</th>
+                  <th class="color-col">標籤顏色</th>
+                  <th class="name-col">標籤名稱</th>
+                  <th class="count-col">用戶人數</th>
+                  <th class="remark-col">備註</th>
+                  <th class="user-col">創建人</th>
+                  <th class="time-col">創建時間</th>
+                  <th class="user-col">修改人</th>
                   <th class="time-col">更新時間</th>
                   <th class="action-col">操作</th>
                 </tr>
               </thead>
-              <tbody id="walletRows"></tbody>
+              <tbody id="labelRows"></tbody>
             </table>
           </div>
           <div class="card-list" id="cardList"></div>
           <div class="empty-state" id="emptyState">
-            <strong>沒有符合條件的錢包</strong>
+            <strong>沒有符合條件的標籤</strong>
             <span>調整篩選條件後會重新整理列表。</span>
+          </div>
+          <div class="pagination">
+            <div class="pagination-controls">
+              <button class="button" type="button" disabled>«</button>
+              <button class="button" type="button" disabled>‹</button>
+              <span class="page-box">1</span>
+              <button class="button" type="button" disabled>›</button>
+              <button class="button" type="button" disabled>»</button>
+              <span>10件/頁</span>
+              <span>合計 <strong id="paginationTotal">0</strong> 件</span>
+            </div>
           </div>
         </section>
       </main>
@@ -1136,11 +998,10 @@
   </div>
 
   <div class="modal-backdrop" id="modalBackdrop"></div>
-  <section class="wallet-modal" id="walletModal" aria-label="系統上分下分" aria-hidden="true">
+  <section class="label-modal" id="labelModal" aria-label="標籤編輯" aria-hidden="true">
     <div class="modal-head">
       <div class="modal-title">
-        <strong id="modalTitle">系統上分</strong>
-        <span id="modalSub">-</span>
+        <strong id="modalTitle">新增標籤</strong>
       </div>
       <button class="button icon-only" type="button" id="closeModal" aria-label="關閉">
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
@@ -1150,49 +1011,44 @@
   </section>
 
   <script>
-    const filterMeta = {
-      userNo: "用戶序號",
-      account: "玩家帳號",
-      agent: "所屬代理",
-      minAmount: "最小金額",
-      maxAmount: "最大金額",
-      currency: "幣種",
-      createdFrom: "建立時間起",
-      createdTo: "建立時間迄",
-      updatedFrom: "更新時間起",
-      updatedTo: "更新時間迄"
-    };
-
-    const wallets = [
-      { id: "W-10000273-BRL", userNo: "10000273", account: "icafe-agent002-user020", agent: "System", currency: "BRL", balance: 0, createdAt: "2023-12-30 01:07:39", updatedAt: "2023-12-30 01:07:39" },
-      { id: "W-10000385-BRL", userNo: "10000385", account: "crimsonWCuser02", agent: "System", currency: "BRL", balance: 0, createdAt: "2024-02-07 15:18:58", updatedAt: "2024-02-07 15:18:58" },
-      { id: "W-10000390-BRL", userNo: "10000390", account: "jpcafe002", agent: "System", currency: "BRL", balance: 0, createdAt: "2024-02-07 17:42:49", updatedAt: "2024-02-07 17:42:49" },
-      { id: "W-10000391-BRL", userNo: "10000391", account: "jpcafe003", agent: "System", currency: "BRL", balance: 0, createdAt: "2024-02-07 17:58:36", updatedAt: "2024-02-07 17:58:36" },
-      { id: "W-10000397-BRL", userNo: "10000397", account: "qaevan0213", agent: "System", currency: "BRL", balance: 0, createdAt: "2024-02-14 01:36:33", updatedAt: "2024-02-14 01:36:33" },
-      { id: "W-10000401-BRL", userNo: "10000401", account: "QAtest01", agent: "System", currency: "BRL", balance: 0, createdAt: "2024-02-16 17:36:08", updatedAt: "2024-02-16 17:36:08" },
-      { id: "W-10000385-CNY", userNo: "10000385", account: "crimsonWCuser02", agent: "System", currency: "CNY", balance: 4, createdAt: "2024-02-20 20:37:04", updatedAt: "2024-04-03 15:50:43" },
-      { id: "W-10000385-JPY", userNo: "10000385", account: "crimsonWCuser02", agent: "System", currency: "JPY", balance: 1, createdAt: "2024-02-20 20:37:11", updatedAt: "2024-02-20 20:37:11" },
-      { id: "W-10001472-USDT", userNo: "10001472", account: "vip0526", agent: "System", currency: "USDT", balance: 7500, createdAt: "2025-11-15 18:05:43", updatedAt: "2026-05-07 15:33:51" },
-      { id: "W-10001412-BRL", userNo: "10001412", account: "member888", agent: "System", currency: "BRL", balance: 20, createdAt: "2025-09-28 12:20:18", updatedAt: "2025-09-28 12:31:24" }
+    const colorOptions = [
+      { value: "#034f9c", label: "藍色" },
+      { value: "#ffffff", label: "白色" },
+      { value: "#10b981", label: "綠色" },
+      { value: "#16bcd4", label: "龍色" },
+      { value: "#ffd91a", label: "黃色" }
     ];
 
-    let filteredWallets = [...wallets];
-    let selectedIds = new Set();
+    const filterMeta = {
+      id: "ID",
+      name: "標籤名稱",
+      color: "標籤顏色"
+    };
+
+    const labels = [
+      { id: "001", color: "#034f9c", name: "新用戶", userCount: 43, remark: "註冊七天內用戶", createdBy: "-", createdAt: "2025-08-28 16:07:45", updatedBy: "-", updatedAt: "2025-08-28 16:31:38", locked: true },
+      { id: "002", color: "#ffffff", name: "一般用戶", userCount: 1422, remark: "註冊七天後用戶", createdBy: "-", createdAt: "2025-08-28 16:07:45", updatedBy: "-", updatedAt: "2025-08-28 16:07:45", locked: true },
+      { id: "033", color: "#10b981", name: "帥哥", userCount: 0, remark: "上車囉", createdBy: "pl_lives01", createdAt: "2025-10-10 11:15:24", updatedBy: "pl_lives01", updatedAt: "2025-10-10 11:15:24", locked: false },
+      { id: "055", color: "#16bcd4", name: "龍色", userCount: 0, remark: "1133", createdBy: "admin", createdAt: "2025-08-28 16:14:12", updatedBy: "admin", updatedAt: "2025-09-04 16:57:27", locked: false },
+      { id: "066", color: "#034f9c", name: "藍色", userCount: 0, remark: "-", createdBy: "admin", createdAt: "2025-08-28 16:30:25", updatedBy: "admin", updatedAt: "2025-08-28 16:52:36", locked: false },
+      { id: "077", color: "#ffd91a", name: "doncic", userCount: 1, remark: "湖人", createdBy: "risk_depp", createdAt: "2025-09-17 16:05:05", updatedBy: "risk_depp", updatedAt: "2025-09-17 16:05:05", locked: false }
+    ];
+
+    let filteredLabels = [...labels];
     let sortDescending = true;
 
     const form = document.getElementById("filterForm");
-    const rowsEl = document.getElementById("walletRows");
+    const rowsEl = document.getElementById("labelRows");
     const cardListEl = document.getElementById("cardList");
     const chipsEl = document.getElementById("activeChips");
     const resultCountEl = document.getElementById("resultCount");
     const filterCountEl = document.getElementById("filterCount");
-    const selectAllEl = document.getElementById("selectAll");
-    const selectedCountEl = document.getElementById("selectedCount");
     const emptyStateEl = document.getElementById("emptyState");
-    const modalEl = document.getElementById("walletModal");
+    const tableTotalEl = document.getElementById("tableTotal");
+    const paginationTotalEl = document.getElementById("paginationTotal");
+    const modalEl = document.getElementById("labelModal");
     const modalBackdropEl = document.getElementById("modalBackdrop");
     const modalTitleEl = document.getElementById("modalTitle");
-    const modalSubEl = document.getElementById("modalSub");
     const modalBodyEl = document.getElementById("modalBody");
 
     function escapeHtml(value) {
@@ -1204,125 +1060,81 @@
         .replaceAll("'", "&#039;");
     }
 
-    function getUnique(field) {
-      return [...new Set(wallets.map((wallet) => wallet[field]))].sort((a, b) => a.localeCompare(b, "zh-Hant"));
+    function colorLabel(color) {
+      return colorOptions.find((option) => option.value === color)?.label || color;
     }
 
-    function fillOptions(id, values) {
-      const select = document.getElementById(id);
-      values.forEach((value) => {
-        const option = document.createElement("option");
-        option.value = value;
-        option.textContent = value;
-        select.appendChild(option);
-      });
+    function swatch(color) {
+      return `<span class="label-swatch" style="background:${escapeHtml(color)}" title="${escapeHtml(colorLabel(color))}"></span>`;
     }
 
     function initializeOptions() {
-      fillOptions("agent", getUnique("agent"));
-      fillOptions("currency", getUnique("currency"));
+      const colorSelect = document.getElementById("colorFilter");
+      colorOptions.forEach((option) => {
+        const item = document.createElement("option");
+        item.value = option.value;
+        item.textContent = option.label;
+        colorSelect.appendChild(item);
+      });
     }
 
     function getFilters() {
       return Object.fromEntries(new FormData(form).entries());
     }
 
-    function matchesFilter(wallet, filters) {
-      if (filters.userNo && !wallet.userNo.includes(filters.userNo.trim())) return false;
-      if (filters.account && !wallet.account.toLowerCase().includes(filters.account.trim().toLowerCase())) return false;
-      if (filters.agent && wallet.agent !== filters.agent) return false;
-      if (filters.currency && wallet.currency !== filters.currency) return false;
-      if (filters.minAmount && wallet.balance < Number(filters.minAmount)) return false;
-      if (filters.maxAmount && wallet.balance > Number(filters.maxAmount)) return false;
-
-      const createdDate = wallet.createdAt.slice(0, 10);
-      const updatedDate = wallet.updatedAt.slice(0, 10);
-      if (filters.createdFrom && createdDate < filters.createdFrom) return false;
-      if (filters.createdTo && createdDate > filters.createdTo) return false;
-      if (filters.updatedFrom && updatedDate < filters.updatedFrom) return false;
-      if (filters.updatedTo && updatedDate > filters.updatedTo) return false;
+    function matchesFilter(label, filters) {
+      if (filters.id && !label.id.includes(filters.id.trim())) return false;
+      if (filters.name && !label.name.toLowerCase().includes(filters.name.trim().toLowerCase())) return false;
+      if (filters.color && label.color !== filters.color) return false;
       return true;
     }
 
-    function formatMoney(value) {
-      return Number(value).toLocaleString("zh-Hant", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    function moneyMarkup(value) {
-      const zeroClass = Number(value) === 0 ? " zero" : "";
-      return `<span class="money${zeroClass}">${escapeHtml(formatMoney(value))}</span>`;
-    }
-
-    function idMarkup(wallet) {
-      return `<div class="id-row">
-        <span class="id-text" title="${escapeHtml(wallet.userNo)}">${escapeHtml(wallet.userNo)}</span>
-        <button class="copy-button" type="button" data-copy-id="${escapeHtml(wallet.userNo)}" aria-label="複製 ${escapeHtml(wallet.userNo)}">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-        </button>
-      </div>`;
-    }
-
-    function walletInfoMarkup(wallet) {
-      return `<div class="wallet-info">
-        <div class="wallet-name">${escapeHtml(wallet.account)}</div>
-        ${idMarkup(wallet)}
-      </div>`;
-    }
-
-    function rowActions(wallet) {
+    function renderActions(label) {
+      if (label.locked) return `<span class="muted">系統預設</span>`;
       return `<div class="row-actions">
-        <button class="button primary" type="button" data-wallet-action="deposit" data-wallet-id="${escapeHtml(wallet.id)}">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
-          系統上分
-        </button>
-        <button class="button" type="button" data-wallet-action="withdraw" data-wallet-id="${escapeHtml(wallet.id)}">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path></svg>
-          系統下分
-        </button>
+        <button class="button" type="button" data-edit-label="${escapeHtml(label.id)}">編輯</button>
+        <button class="button danger" type="button" data-delete-label="${escapeHtml(label.id)}">刪除</button>
       </div>`;
     }
 
     function renderRows() {
-      rowsEl.innerHTML = filteredWallets.map((wallet) => {
-        const checked = selectedIds.has(wallet.id) ? "checked" : "";
-        return `<tr>
-          <td class="check-col"><input type="checkbox" class="row-check" data-id="${escapeHtml(wallet.id)}" aria-label="選取 ${escapeHtml(wallet.account)} ${escapeHtml(wallet.currency)}" ${checked}></td>
-          <td class="wallet-col">${walletInfoMarkup(wallet)}</td>
-          <td class="agent-col"><span class="summary-text">${escapeHtml(wallet.agent)}</span></td>
-          <td class="currency-col"><span class="currency-badge">${escapeHtml(wallet.currency)}</span></td>
-          <td class="balance-col">${moneyMarkup(wallet.balance)}</td>
-          <td class="time-col"><span class="summary-text">${escapeHtml(wallet.createdAt)}</span></td>
-          <td class="time-col"><span class="summary-text">${escapeHtml(wallet.updatedAt)}</span></td>
-          <td class="action-col">${rowActions(wallet)}</td>
-        </tr>`;
-      }).join("");
+      rowsEl.innerHTML = filteredLabels.map((label) => `<tr>
+        <td class="id-col">${escapeHtml(label.id)}</td>
+        <td class="color-col">${swatch(label.color)}</td>
+        <td class="name-col"><span class="summary-text">${escapeHtml(label.name)}</span></td>
+        <td class="count-col">${escapeHtml(label.userCount)}</td>
+        <td class="remark-col"><span class="summary-subtext">${escapeHtml(label.remark)}</span></td>
+        <td class="user-col">${escapeHtml(label.createdBy)}</td>
+        <td class="time-col">${escapeHtml(label.createdAt)}</td>
+        <td class="user-col">${escapeHtml(label.updatedBy)}</td>
+        <td class="time-col">${escapeHtml(label.updatedAt)}</td>
+        <td class="action-col">${renderActions(label)}</td>
+      </tr>`).join("");
 
-      cardListEl.innerHTML = filteredWallets.map((wallet) => `<article class="wallet-card">
+      cardListEl.innerHTML = filteredLabels.map((label) => `<article class="label-card">
         <div class="card-head">
           <div class="card-title">
-            <strong>${escapeHtml(wallet.account)}</strong>
-            <span class="wallet-meta">${escapeHtml(wallet.agent)}｜${escapeHtml(wallet.userNo)}</span>
+            <strong>${escapeHtml(label.name)}</strong>
+            <span class="summary-subtext">ID ${escapeHtml(label.id)}｜${escapeHtml(colorLabel(label.color))}</span>
           </div>
-          <span class="currency-badge">${escapeHtml(wallet.currency)}</span>
+          ${swatch(label.color)}
         </div>
-        ${idMarkup(wallet)}
         <div class="card-meta">
-          <div class="card-meta-item"><span>餘額</span><strong>${escapeHtml(formatMoney(wallet.balance))}</strong></div>
-          <div class="card-meta-item"><span>建立時間</span><strong>${escapeHtml(wallet.createdAt.slice(0, 10))}</strong></div>
-          <div class="card-meta-item"><span>更新時間</span><strong>${escapeHtml(wallet.updatedAt.slice(0, 10))}</strong></div>
-          <div class="card-meta-item"><span>所屬代理</span><strong>${escapeHtml(wallet.agent)}</strong></div>
+          <div class="card-meta-item"><span>用戶人數</span><strong>${escapeHtml(label.userCount)}</strong></div>
+          <div class="card-meta-item"><span>備註</span><strong>${escapeHtml(label.remark)}</strong></div>
+          <div class="card-meta-item"><span>創建人</span><strong>${escapeHtml(label.createdBy)}</strong></div>
+          <div class="card-meta-item"><span>更新時間</span><strong>${escapeHtml(label.updatedAt.slice(0, 10))}</strong></div>
         </div>
-        ${rowActions(wallet)}
+        ${renderActions(label)}
       </article>`).join("");
 
-      emptyStateEl.style.display = filteredWallets.length ? "none" : "block";
-      updateSelectionState();
+      emptyStateEl.style.display = filteredLabels.length ? "none" : "block";
     }
 
     function renderChips(filters) {
       const activeFilters = Object.entries(filters)
         .filter(([, value]) => value !== "")
-        .map(([key, value]) => ({ key, label: filterMeta[key], value }));
+        .map(([key, value]) => ({ key, label: filterMeta[key], value: key === "color" ? colorLabel(value) : value }));
       filterCountEl.textContent = activeFilters.length;
       chipsEl.innerHTML = activeFilters.length
         ? activeFilters.map((filter) => `<span class="chip"><span>${escapeHtml(filter.label)}：${escapeHtml(filter.value)}</span><button type="button" data-remove-filter="${escapeHtml(filter.key)}" aria-label="移除 ${escapeHtml(filter.label)}">×</button></span>`).join("")
@@ -1330,18 +1142,19 @@
     }
 
     function renderMetrics() {
-      document.getElementById("totalMetric").textContent = wallets.length;
-      document.getElementById("fundedMetric").textContent = wallets.filter((wallet) => wallet.balance > 0).length;
-      document.getElementById("currencyMetric").textContent = getUnique("currency").length;
+      document.getElementById("totalMetric").textContent = labels.length;
+      document.getElementById("activeMetric").textContent = labels.filter((label) => label.userCount > 0).length;
+      document.getElementById("usersMetric").textContent = labels.reduce((sum, label) => sum + label.userCount, 0);
     }
 
     function applyFilters() {
       const filters = getFilters();
-      filteredWallets = wallets
-        .filter((wallet) => matchesFilter(wallet, filters))
+      filteredLabels = labels
+        .filter((label) => matchesFilter(label, filters))
         .sort((a, b) => a.updatedAt.localeCompare(b.updatedAt) * (sortDescending ? -1 : 1));
-      selectedIds = new Set([...selectedIds].filter((id) => filteredWallets.some((wallet) => wallet.id === id)));
-      resultCountEl.textContent = filteredWallets.length;
+      resultCountEl.textContent = filteredLabels.length;
+      tableTotalEl.textContent = filteredLabels.length;
+      paginationTotalEl.textContent = filteredLabels.length;
       renderChips(filters);
       renderRows();
     }
@@ -1351,27 +1164,48 @@
       applyFilters();
     }
 
-    function updateSelectionState() {
-      selectedCountEl.textContent = selectedIds.size;
-      const visibleIds = filteredWallets.map((wallet) => wallet.id);
-      const visibleSelected = visibleIds.filter((id) => selectedIds.has(id)).length;
-      selectAllEl.checked = visibleIds.length > 0 && visibleSelected === visibleIds.length;
-      selectAllEl.indeterminate = visibleSelected > 0 && visibleSelected < visibleIds.length;
-    }
-
     function getCurrentTimestamp() {
       const now = new Date();
       const pad = (value) => String(value).padStart(2, "0");
       return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     }
 
-    function openTransferModal(walletId, mode) {
-      const wallet = wallets.find((item) => item.id === walletId);
-      if (!wallet) return;
-      const isDeposit = mode === "deposit";
-      modalTitleEl.textContent = isDeposit ? "系統上分" : "系統下分";
-      modalSubEl.textContent = `${wallet.account}｜${wallet.currency}｜目前餘額 ${formatMoney(wallet.balance)}`;
-      modalBodyEl.innerHTML = renderTransferForm(wallet, mode);
+    function renderLabelForm(label = null) {
+      const isEdit = Boolean(label);
+      const current = label || { id: "", name: "", color: "", remark: "" };
+      return `<form class="label-form" id="labelForm" data-mode="${isEdit ? "edit" : "create"}" data-label-id="${escapeHtml(current.id)}">
+        <div class="field">
+          <label for="labelId"><span class="required">*</span> ID</label>
+          <input id="labelId" name="id" value="${escapeHtml(current.id)}" placeholder="請輸入1~999" inputmode="numeric" maxlength="3" ${isEdit ? "readonly" : ""} required>
+        </div>
+        <div class="field">
+          <label for="labelName"><span class="required">*</span> 標籤名稱</label>
+          <input id="labelName" name="name" value="${escapeHtml(current.name)}" maxlength="8" required>
+          <span class="field-counter" id="nameCounter">${escapeHtml(current.name.length)} / 8</span>
+        </div>
+        <div class="field">
+          <label for="labelColor"><span class="required">*</span> 標籤顏色</label>
+          <select id="labelColor" name="color" required>
+            <option value="">請選擇</option>
+            ${colorOptions.map((option) => `<option value="${escapeHtml(option.value)}" ${option.value === current.color ? "selected" : ""}>${escapeHtml(option.label)}</option>`).join("")}
+          </select>
+        </div>
+        <div class="field">
+          <label for="labelRemark">備註</label>
+          <textarea id="labelRemark" name="remark" maxlength="200">${escapeHtml(current.remark === "-" ? "" : current.remark)}</textarea>
+          <span class="field-counter" id="remarkCounter">${escapeHtml(current.remark === "-" ? 0 : current.remark.length)} / 200</span>
+        </div>
+        <div class="modal-footer">
+          <button class="button" type="button" data-close-modal>取消</button>
+          <button class="button primary" type="submit">保存</button>
+        </div>
+      </form>`;
+    }
+
+    function openLabelModal(mode, id = "") {
+      const label = labels.find((item) => item.id === id) || null;
+      modalTitleEl.textContent = mode === "edit" ? "編輯標籤" : "新增標籤";
+      modalBodyEl.innerHTML = renderLabelForm(mode === "edit" ? label : null);
       modalEl.classList.add("is-open");
       modalBackdropEl.classList.add("is-open");
       modalEl.setAttribute("aria-hidden", "false");
@@ -1383,184 +1217,70 @@
       modalEl.setAttribute("aria-hidden", "true");
     }
 
-    function renderTransferForm(wallet, mode) {
-      const title = mode === "deposit" ? "系統上分" : "系統下分";
-      return `<form class="transfer-form" id="transferForm" data-wallet-id="${escapeHtml(wallet.id)}" data-mode="${escapeHtml(mode)}">
-        <div class="field">
-          <label for="transferAccount">玩家帳號</label>
-          <input id="transferAccount" value="${escapeHtml(`${wallet.account}(${wallet.agent})`)}" readonly>
-        </div>
-        <div class="field">
-          <label for="transferAmount"><span class="required">*</span> 額度</label>
-          <div class="amount-field">
-            <span class="amount-prefix">¥</span>
-            <input id="transferAmount" name="amount" type="text" inputmode="decimal" placeholder="0" required>
-          </div>
-        </div>
-        <div class="amount-presets" aria-label="${escapeHtml(title)}快捷金額">
-          ${[100, 500, 1000, 5000].map((amount) => `<button class="preset-button" type="button" data-preset="${amount}">+${amount}</button>`).join("")}
-        </div>
-        <div class="field">
-          <label for="transferRemark"><span class="required">*</span> 備註</label>
-          <textarea id="transferRemark" name="remark" required></textarea>
-        </div>
-        <div class="modal-footer">
-          <button class="button" type="button" data-transfer-reset>
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg>
-            重置
-          </button>
-          <button class="button primary" type="submit">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7 9 18l-5-5"></path></svg>
-            保存
-          </button>
-        </div>
-      </form>`;
-    }
-
-    function submitTransfer(transferForm) {
-      const wallet = wallets.find((item) => item.id === transferForm.dataset.walletId);
-      if (!wallet) return;
-      const amount = Number(transferForm.elements.amount.value);
-      const remark = transferForm.elements.remark.value.trim();
-      if (!amount || amount <= 0) {
-        alert("請輸入有效額度");
+    function submitLabel(labelForm) {
+      const mode = labelForm.dataset.mode;
+      const rawId = labelForm.elements.id.value.trim();
+      const id = rawId.padStart(3, "0");
+      const name = labelForm.elements.name.value.trim();
+      const color = labelForm.elements.color.value;
+      const remark = labelForm.elements.remark.value.trim() || "-";
+      if (!/^[0-9]{1,3}$/.test(rawId)) {
+        alert("ID 請輸入 1~999");
         return;
       }
-      if (!remark) {
-        alert("請填寫備註");
+      if (!name || !color) {
+        alert("請填寫標籤名稱與標籤顏色");
         return;
       }
-      if (transferForm.dataset.mode === "withdraw" && amount > wallet.balance) {
-        alert("下分金額不可大於目前餘額");
-        return;
+      const now = getCurrentTimestamp();
+      if (mode === "create") {
+        if (labels.some((label) => label.id === id)) {
+          alert("ID 已存在");
+          return;
+        }
+        labels.push({
+          id,
+          name,
+          color,
+          userCount: 0,
+          remark,
+          createdBy: "admin",
+          createdAt: now,
+          updatedBy: "admin",
+          updatedAt: now,
+          locked: false
+        });
+      } else {
+        const label = labels.find((item) => item.id === labelForm.dataset.labelId);
+        if (!label || label.locked) return;
+        label.name = name;
+        label.color = color;
+        label.remark = remark;
+        label.updatedBy = "admin";
+        label.updatedAt = now;
       }
-      wallet.balance = transferForm.dataset.mode === "deposit" ? wallet.balance + amount : wallet.balance - amount;
-      wallet.updatedAt = getCurrentTimestamp();
       renderMetrics();
       applyFilters();
       closeModal();
     }
 
-    async function copyId(button) {
-      const value = button.dataset.copyId;
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(value);
-        } else {
-          const helper = document.createElement("textarea");
-          helper.value = value;
-          helper.setAttribute("readonly", "");
-          helper.style.position = "fixed";
-          helper.style.opacity = "0";
-          document.body.appendChild(helper);
-          helper.select();
-          document.execCommand("copy");
-          helper.remove();
-        }
-        button.classList.add("copied");
-        button.setAttribute("aria-label", "已複製用戶序號");
-        setTimeout(() => {
-          button.classList.remove("copied");
-          button.setAttribute("aria-label", `複製 ${value}`);
-        }, 1200);
-      } catch (error) {
-        button.setAttribute("aria-label", "複製失敗");
-      }
+    function deleteLabel(id) {
+      const index = labels.findIndex((label) => label.id === id);
+      if (index === -1 || labels[index].locked) return;
+      if (!confirm(`確定刪除標籤 ${labels[index].name}？`)) return;
+      labels.splice(index, 1);
+      renderMetrics();
+      applyFilters();
     }
 
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      applyFilters();
-    });
-
-    document.getElementById("toggleFilters").addEventListener("click", (event) => {
-      const panel = document.getElementById("filterPanel");
-      panel.hidden = !panel.hidden;
-      event.currentTarget.setAttribute("aria-expanded", String(!panel.hidden));
-    });
-
-    document.getElementById("moreToggle").addEventListener("click", (event) => {
-      const panel = document.getElementById("moreFilters");
-      panel.hidden = !panel.hidden;
-      event.currentTarget.setAttribute("aria-expanded", String(!panel.hidden));
-    });
-
-    document.getElementById("resetFilters").addEventListener("click", resetFilters);
-    document.getElementById("clearApplied").addEventListener("click", resetFilters);
-    document.getElementById("refreshButton").addEventListener("click", applyFilters);
-    document.getElementById("sortUpdated").addEventListener("click", () => {
-      sortDescending = !sortDescending;
-      applyFilters();
-    });
-
-    chipsEl.addEventListener("click", (event) => {
-      const button = event.target.closest("[data-remove-filter]");
-      if (!button) return;
-      const control = form.elements[button.dataset.removeFilter];
-      if (control) {
-        control.value = "";
-        applyFilters();
-      }
-    });
-
-    document.body.addEventListener("click", (event) => {
-      const copyButton = event.target.closest("[data-copy-id]");
-      if (copyButton) {
-        copyId(copyButton);
-        return;
-      }
-      const actionButton = event.target.closest("[data-wallet-action]");
-      if (actionButton) {
-        openTransferModal(actionButton.dataset.walletId, actionButton.dataset.walletAction);
-      }
-    });
-
-    document.body.addEventListener("change", (event) => {
-      const checkbox = event.target.closest(".row-check");
-      if (!checkbox) return;
-      if (checkbox.checked) {
-        selectedIds.add(checkbox.dataset.id);
-      } else {
-        selectedIds.delete(checkbox.dataset.id);
-      }
-      updateSelectionState();
-    });
-
-    selectAllEl.addEventListener("change", () => {
-      const visibleIds = filteredWallets.map((wallet) => wallet.id);
-      if (selectAllEl.checked) {
-        visibleIds.forEach((id) => selectedIds.add(id));
-      } else {
-        visibleIds.forEach((id) => selectedIds.delete(id));
-      }
-      renderRows();
-    });
-
-    modalBodyEl.addEventListener("click", (event) => {
-      const preset = event.target.closest("[data-preset]");
-      if (preset) {
-        const input = document.getElementById("transferAmount");
-        input.value = String((Number(input.value) || 0) + Number(preset.dataset.preset));
-      }
-      const reset = event.target.closest("[data-transfer-reset]");
-      if (reset) {
-        const formEl = document.getElementById("transferForm");
-        if (formEl) formEl.reset();
-      }
-    });
-
-    modalBodyEl.addEventListener("submit", (event) => {
-      event.preventDefault();
-      if (event.target.getAttribute("id") === "transferForm") {
-        submitTransfer(event.target);
-      }
-    });
-
-    document.getElementById("closeModal").addEventListener("click", closeModal);
-    modalBackdropEl.addEventListener("click", closeModal);
-    window.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeModal();
-    });
+    function updateCounters() {
+      const nameInput = document.getElementById("labelName");
+      const remarkInput = document.getElementById("labelRemark");
+      const nameCounter = document.getElementById("nameCounter");
+      const remarkCounter = document.getElementById("remarkCounter");
+      if (nameInput && nameCounter) nameCounter.textContent = `${nameInput.value.length} / 8`;
+      if (remarkInput && remarkCounter) remarkCounter.textContent = `${remarkInput.value.length} / 200`;
+    }
 
     function setupMobileMenu() {
       const menuToggleEl = document.querySelector(".menu-toggle");
@@ -1577,6 +1297,57 @@
         menuToggleEl.setAttribute("aria-expanded", "false");
       });
     }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      applyFilters();
+    });
+
+    document.getElementById("resetFilters").addEventListener("click", resetFilters);
+    document.getElementById("clearApplied").addEventListener("click", resetFilters);
+    document.getElementById("refreshButton").addEventListener("click", applyFilters);
+    document.getElementById("openCreateLabel").addEventListener("click", () => openLabelModal("create"));
+    document.getElementById("sortUpdated").addEventListener("click", () => {
+      sortDescending = !sortDescending;
+      applyFilters();
+    });
+
+    chipsEl.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-remove-filter]");
+      if (!button) return;
+      const control = form.elements[button.dataset.removeFilter];
+      if (control) {
+        control.value = "";
+        applyFilters();
+      }
+    });
+
+    document.body.addEventListener("click", (event) => {
+      const editButton = event.target.closest("[data-edit-label]");
+      if (editButton) {
+        openLabelModal("edit", editButton.dataset.editLabel);
+        return;
+      }
+      const deleteButton = event.target.closest("[data-delete-label]");
+      if (deleteButton) {
+        deleteLabel(deleteButton.dataset.deleteLabel);
+      }
+    });
+
+    modalBodyEl.addEventListener("input", updateCounters);
+    modalBodyEl.addEventListener("click", (event) => {
+      if (event.target.closest("[data-close-modal]")) closeModal();
+    });
+    modalBodyEl.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (event.target.getAttribute("id") === "labelForm") submitLabel(event.target);
+    });
+
+    document.getElementById("closeModal").addEventListener("click", closeModal);
+    modalBackdropEl.addEventListener("click", closeModal);
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeModal();
+    });
 
     setupMobileMenu();
     initializeOptions();

@@ -172,7 +172,7 @@
   </main>
 
   <script>
-    const allowedPages = new Set(["index.html", "game-list.html", "game-lobby-list.html", "member-account.html", "member-wallet.html"]);
+    const allowedPages = new Set(["index.html", "game-list.html", "game-lobby-list.html", "member-account.html", "member-wallet.html", "member-labels.html"]);
     const params = new URLSearchParams(location.search);
     const next = allowedPages.has(params.get("next")) ? params.get("next") : "index.html";
 
